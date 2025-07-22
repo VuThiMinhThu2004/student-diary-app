@@ -6,12 +6,19 @@ function DiaryHistory({
   editingLog,
   editNote,
   setEditNote,
-  editFeedback,
-  setEditFeedback,
+  editAdvantages,
+  setEditAdvantages,
+  editErrors,
+  setEditErrors,
+  editHomework,
+  setEditHomework,
+  editIsPaid,
+  setEditIsPaid,
   startEditing,
   saveEdit,
   cancelEditing,
-  deleteLog
+  deleteLog,
+  userRole = "student"
 }) {
   return (
     <div className="history-section">
@@ -24,9 +31,12 @@ function DiaryHistory({
             <tr>
               <th>#</th>
               <th>Ngày</th>
-              <th>Ghi chú</th>
-              <th>Đánh giá</th>
-              <th>Thao tác</th>
+              <th>Nội dung</th>
+              <th>Ưu điểm</th>
+              <th>Lỗi cần sửa</th>
+              <th>Bài tập về nhà</th>
+              <th>Tính phí</th>
+              {userRole === "teacher" && <th>Thao tác</th>}
             </tr>
           </thead>
           <tbody>
@@ -38,12 +48,19 @@ function DiaryHistory({
                 editingLog={editingLog}
                 editNote={editNote}
                 setEditNote={setEditNote}
-                editFeedback={editFeedback}
-                setEditFeedback={setEditFeedback}
+                editAdvantages={editAdvantages}
+                setEditAdvantages={setEditAdvantages}
+                editErrors={editErrors}
+                setEditErrors={setEditErrors}
+                editHomework={editHomework}
+                setEditHomework={setEditHomework}
+                editIsPaid={editIsPaid}
+                setEditIsPaid={setEditIsPaid}
                 startEditing={startEditing}
                 saveEdit={saveEdit}
                 cancelEditing={cancelEditing}
                 deleteLog={deleteLog}
+                userRole={userRole}
               />
             ))}
           </tbody>

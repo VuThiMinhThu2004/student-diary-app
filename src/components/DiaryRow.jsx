@@ -6,12 +6,19 @@ function DiaryRow({
   editingLog,
   editNote,
   setEditNote,
-  editFeedback,
-  setEditFeedback,
+  editAdvantages,
+  setEditAdvantages,
+  editErrors,
+  setEditErrors,
+  editHomework,
+  setEditHomework,
+  editIsPaid,
+  setEditIsPaid,
   startEditing,
   saveEdit,
   cancelEditing,
-  deleteLog
+  deleteLog,
+  userRole = "student"
 }) {
   return (
     <tr>
@@ -22,7 +29,7 @@ function DiaryRow({
           <textarea
             value={editNote}
             onChange={(e) => setEditNote(e.target.value)}
-            rows="3"
+            rows="2"
             className="edit-textarea"
           />
         ) : (
@@ -31,38 +38,79 @@ function DiaryRow({
       </td>
       <td>
         {editingLog && editingLog.id === log.id ? (
-          <input
-            value={editFeedback}
-            onChange={(e) => setEditFeedback(e.target.value)}
-            className="edit-input"
+          <textarea
+            value={editAdvantages}
+            onChange={(e) => setEditAdvantages(e.target.value)}
+            rows="2"
+            className="edit-textarea"
           />
         ) : (
-          log.feedback
+          log.advantages || "-"
         )}
       </td>
       <td>
         {editingLog && editingLog.id === log.id ? (
-          <div className="edit-buttons">
-            <button onClick={saveEdit} className="btn btn-save">Lưu</button>
-            <button onClick={cancelEditing} className="btn btn-cancel">Hủy</button>
-          </div>
+          <textarea
+            value={editErrors}
+            onChange={(e) => setEditErrors(e.target.value)}
+            rows="2"
+            className="edit-textarea"
+          />
         ) : (
-          <div className="action-buttons">
-            <button 
-              onClick={() => startEditing(log)} 
-              className="btn btn-edit"
-            >
-              ✏️
-            </button>
-            <button 
-              onClick={() => deleteLog(log.id)} 
-              className="btn btn-delete"
-            >
-              🗑️
-            </button>
-          </div>
+          log.errors || "-"
         )}
       </td>
+      <td>
+        {editingLog && editingLog.id === log.id ? (
+          <textarea
+            value={editHomework}
+            onChange={(e) => setEditHomework(e.target.value)}
+            rows="2"
+            className="edit-textarea"
+          />
+        ) : (
+          log.homework || "-"
+        )}
+      </td>
+      <td>
+        {editingLog && editingLog.id === log.id ? (
+          <label>
+            <input
+              type="checkbox"
+              checked={editIsPaid}
+              onChange={(e) => setEditIsPaid(e.target.checked)}
+            />
+            Tính phí
+          </label>
+        ) : (
+          log.isPaid ? "Tính phí" : "Free"
+        )}
+      </td>
+      {userRole === "teacher" && (
+        <td>
+          {editingLog && editingLog.id === log.id ? (
+            <div className="edit-buttons">
+              <button onClick={saveEdit} className="btn btn-save">Lưu</button>
+              <button onClick={cancelEditing} className="btn btn-cancel">Hủy</button>
+            </div>
+          ) : (
+            <div className="action-buttons">
+              <button 
+                onClick={() => startEditing(log)} 
+                className="btn btn-edit"
+              >
+                ✏️
+              </button>
+              <button 
+                onClick={() => deleteLog(log.id)} 
+                className="btn btn-delete"
+              >
+                🗑️
+              </button>
+            </div>
+          )}
+        </td>
+      )}
     </tr>
   );
 }
