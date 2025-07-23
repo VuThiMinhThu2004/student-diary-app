@@ -3,20 +3,6 @@ import DiaryRow from './DiaryRow';
 
 function DiaryHistory({
   logs,
-  editingLog,
-  editNote,
-  setEditNote,
-  editAdvantages,
-  setEditAdvantages,
-  editErrors,
-  setEditErrors,
-  editHomework,
-  setEditHomework,
-  editIsPaid,
-  setEditIsPaid,
-  startEditing,
-  saveEdit,
-  cancelEditing,
   deleteLog,
   userRole = "student"
 }) {
@@ -45,20 +31,6 @@ function DiaryHistory({
                 key={log.id}
                 index={logs.length - index}
                 log={log}
-                editingLog={editingLog}
-                editNote={editNote}
-                setEditNote={setEditNote}
-                editAdvantages={editAdvantages}
-                setEditAdvantages={setEditAdvantages}
-                editErrors={editErrors}
-                setEditErrors={setEditErrors}
-                editHomework={editHomework}
-                setEditHomework={setEditHomework}
-                editIsPaid={editIsPaid}
-                setEditIsPaid={setEditIsPaid}
-                startEditing={startEditing}
-                saveEdit={saveEdit}
-                cancelEditing={cancelEditing}
                 deleteLog={deleteLog}
                 userRole={userRole}
               />

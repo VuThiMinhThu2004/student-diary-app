@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, updateDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, query, where } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import UserHeader from './UserHeader';
 import DiaryForm from './DiaryForm';
@@ -48,12 +48,6 @@ function TeacherDashboard({ user, onLogout }) {
   const [errors, setErrors] = useState('');
   const [homework, setHomework] = useState('');
   const [isPaid, setIsPaid] = useState(false);
-  const [editingLog, setEditingLog] = useState(null);
-  const [editNote, setEditNote] = useState('');
-  const [editAdvantages, setEditAdvantages] = useState('');
-  const [editErrors, setEditErrors] = useState('');
-  const [editHomework, setEditHomework] = useState('');
-  const [editIsPaid, setEditIsPaid] = useState(false);
 
   const db = getFirestore();
   const auth = getAuth();
@@ -334,73 +328,6 @@ function TeacherDashboard({ user, onLogout }) {
       console.error('Lỗi thêm nhật ký:', error);
       alert('Lỗi thêm nhật ký: ' + error.message);
     }
-  };
-
-  // Chỉnh sửa nhật ký
-  const startEditing = (log) => {
-    console.log('Starting to edit diary entry:', log);
-    console.log('Current state:', { selectedStudentId, selectedCourseId });
-    
-    setEditingLog(log.id);
-    setEditNote(log.note || '');
-    setEditAdvantages(log.advantages || '');
-    setEditErrors(log.errors || '');
-    setEditHomework(log.homework || '');
-    setEditIsPaid(log.isPaid || false);
-  };
-
-  const saveEdit = async () => {
-    if (!editNote.trim()) {
-      alert('Vui lòng nhập nội dung nhật ký');
-      return;
-    }
-
-    if (!selectedStudentId || !selectedCourseId) {
-      alert('Lỗi: Không xác định được học sinh hoặc khóa học');
-      console.error('Missing selectedStudentId or selectedCourseId', { selectedStudentId, selectedCourseId });
-      return;
-    }
-
-    try {
-      console.log('Updating diary entry:', {
-        studentId: selectedStudentId,
-        courseId: selectedCourseId,
-        diaryId: editingLog,
-        data: {
-          note: editNote.trim(),
-          advantages: editAdvantages.trim(),
-          errors: editErrors.trim(),
-          homework: editHomework.trim(),
-          isPaid: editIsPaid
-        }
-      });
-
-      await updateDoc(doc(db, 'diary', editingLog), {
-        note: editNote.trim(),
-        advantages: editAdvantages.trim(),
-        errors: editErrors.trim(),
-        homework: editHomework.trim(),
-        isPaid: editIsPaid,
-        updatedAt: new Date()
-      });
-
-      console.log('Diary entry updated successfully');
-      setEditingLog(null);
-      await loadStudentLogs(selectedStudentId, selectedCourseId);
-      alert('Cập nhật nhật ký thành công!');
-    } catch (error) {
-      console.error('Lỗi cập nhật nhật ký:', error);
-      alert('Lỗi cập nhật: ' + error.message);
-    }
-  };
-
-  const cancelEditing = () => {
-    setEditingLog(null);
-    setEditNote('');
-    setEditAdvantages('');
-    setEditErrors('');
-    setEditHomework('');
-    setEditIsPaid(false);
   };
 
   // Xóa nhật ký
@@ -914,20 +841,6 @@ function TeacherDashboard({ user, onLogout }) {
                     <DiaryHistory
                       logs={logs}
                       userRole="teacher"
-                      editingLog={editingLog}
-                      editNote={editNote}
-                      setEditNote={setEditNote}
-                      editAdvantages={editAdvantages}
-                      setEditAdvantages={setEditAdvantages}
-                      editErrors={editErrors}
-                      setEditErrors={setEditErrors}
-                      editHomework={editHomework}
-                      setEditHomework={setEditHomework}
-                      editIsPaid={editIsPaid}
-                      setEditIsPaid={setEditIsPaid}
-                      startEditing={startEditing}
-                      saveEdit={saveEdit}
-                      cancelEditing={cancelEditing}
                       deleteLog={deleteLog}
                     />
                   </div>
