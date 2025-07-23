@@ -20,7 +20,7 @@ function TeacherDashboard({ user, onLogout }) {
   const [newStudentPassword, setNewStudentPassword] = useState('');
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentGender, setNewStudentGender] = useState('Nam');
-  const [newStudentBirthYear, setNewStudentBirthYear] = useState('');
+  const [newStudentBirthDate, setNewStudentBirthDate] = useState('');
   const [newStudentPhone, setNewStudentPhone] = useState('');
   const [newStudentCourse, setNewStudentCourse] = useState('');
   const [newStudentTotalSessions, setNewStudentTotalSessions] = useState('30');
@@ -31,7 +31,7 @@ function TeacherDashboard({ user, onLogout }) {
   const [editingStudent, setEditingStudent] = useState(null);
   const [editStudentName, setEditStudentName] = useState('');
   const [editStudentGender, setEditStudentGender] = useState('Nam');
-  const [editStudentBirthYear, setEditStudentBirthYear] = useState('');
+  const [editStudentBirthDate, setEditStudentBirthDate] = useState('');
   const [editStudentPhone, setEditStudentPhone] = useState('');
   const [editStudentCourse, setEditStudentCourse] = useState('');
   const [editStudentTotalSessions, setEditStudentTotalSessions] = useState('30');
@@ -126,7 +126,7 @@ function TeacherDashboard({ user, onLogout }) {
         role: 'student',
         fullName: newStudentName,
         gender: newStudentGender,
-        birthYear: parseInt(newStudentBirthYear) || null,
+        birthDate: newStudentBirthDate.trim() || null,
         phone: newStudentPhone,
         course: newStudentCourse,
         totalSessions: parseInt(newStudentTotalSessions) || 30,
@@ -143,7 +143,7 @@ function TeacherDashboard({ user, onLogout }) {
       setNewStudentPassword('');
       setNewStudentName('');
       setNewStudentGender('Nam');
-      setNewStudentBirthYear('');
+      setNewStudentBirthDate('');
       setNewStudentPhone('');
       setNewStudentCourse('');
       setNewStudentTotalSessions('30');
@@ -166,7 +166,7 @@ function TeacherDashboard({ user, onLogout }) {
     setEditingStudent(student.id);
     setEditStudentName(student.fullName || '');
     setEditStudentGender(student.gender || 'Nam');
-    setEditStudentBirthYear(student.birthYear ? student.birthYear.toString() : '');
+    setEditStudentBirthDate(student.birthDate || '');
     setEditStudentPhone(student.phone || '');
     setEditStudentCourse(student.course || '');
     setEditStudentTotalSessions(student.totalSessions ? student.totalSessions.toString() : '30');
@@ -184,7 +184,7 @@ function TeacherDashboard({ user, onLogout }) {
       const updateData = {
         fullName: editStudentName.trim(),
         gender: editStudentGender,
-        birthYear: parseInt(editStudentBirthYear) || null,
+        birthDate: editStudentBirthDate.trim() || null,
         phone: editStudentPhone.trim(),
         course: editStudentCourse.trim(),
         totalSessions: parseInt(editStudentTotalSessions) || 30,
@@ -209,7 +209,7 @@ function TeacherDashboard({ user, onLogout }) {
     setEditingStudent(null);
     setEditStudentName('');
     setEditStudentGender('Nam');
-    setEditStudentBirthYear('');
+    setEditStudentBirthDate('');
     setEditStudentPhone('');
     setEditStudentCourse('');
     setEditStudentTotalSessions('30');
@@ -475,7 +475,7 @@ function TeacherDashboard({ user, onLogout }) {
                       <th>STT</th>
                       <th>Họ và tên</th>
                       <th>Mã học sinh</th>
-                      <th>Năm sinh</th>
+                      <th>Ngày sinh</th>
                       <th>SĐT</th>
                       <th>Khóa</th>
                       <th>Buổi học</th>
@@ -488,7 +488,7 @@ function TeacherDashboard({ user, onLogout }) {
                         <td>{index + 1}</td>
                         <td>{student.fullName || student.email}</td>
                         <td>{student.studentCode || 'N/A'}</td>
-                        <td>{student.birthYear || 'N/A'}</td>
+                        <td>{student.birthDate || 'N/A'}</td>
                         <td>{student.phone || 'N/A'}</td>
                         <td>{student.course || 'N/A'}</td>
                         <td>{student.totalSessions || 'N/A'}</td>
@@ -565,12 +565,10 @@ function TeacherDashboard({ user, onLogout }) {
                   
                   <div className="form-row">
                     <input
-                      type="number"
-                      placeholder="Năm sinh"
-                      value={newStudentBirthYear}
-                      onChange={(e) => setNewStudentBirthYear(e.target.value)}
-                      min="1950"
-                      max="2020"
+                      type="text"
+                      placeholder="Ngày sinh (VD: 01/02/2010 hoặc 01-02-2010)"
+                      value={newStudentBirthDate}
+                      onChange={(e) => setNewStudentBirthDate(e.target.value)}
                     />
                     <input
                       type="tel"
@@ -655,10 +653,10 @@ function TeacherDashboard({ user, onLogout }) {
                           
                           <div className="form-group">
                             <input
-                              type="number"
-                              placeholder="Năm sinh"
-                              value={editStudentBirthYear}
-                              onChange={(e) => setEditStudentBirthYear(e.target.value)}
+                              type="text"
+                              placeholder="Ngày sinh (VD: 01/02/2010)"
+                              value={editStudentBirthDate}
+                              onChange={(e) => setEditStudentBirthDate(e.target.value)}
                             />
                             <input
                               type="tel"
@@ -713,7 +711,7 @@ function TeacherDashboard({ user, onLogout }) {
                           <h4>{student.fullName || student.email}</h4>
                           <p><strong>Mã:</strong> {student.studentCode || 'N/A'}</p>
                           <p><strong>Email:</strong> {student.email}</p>
-                          <p><strong>Năm sinh:</strong> {student.birthYear || 'N/A'}</p>
+                          <p><strong>Ngày sinh:</strong> {student.birthDate || 'N/A'}</p>
                           <p><strong>SĐT:</strong> {student.phone || 'N/A'}</p>
                           <p><strong>Khóa:</strong> {student.course || 'N/A'}</p>
                           <p><strong>Buổi học:</strong> {student.totalSessions || 'N/A'}</p>
