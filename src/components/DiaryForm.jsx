@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 function DiaryForm({ 
   note, 
@@ -13,6 +13,23 @@ function DiaryForm({
   setIsPaid, 
   addLog 
 }) {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+
+  const handleAddTodayLog = () => {
+    addLog(); // Gọi addLog với ngày hôm nay (mặc định)
+  };
+
+  const handleAddCustomDateLog = () => {
+    if (!selectedDate) {
+      alert('Vui lòng chọn ngày');
+      return;
+    }
+    addLog(selectedDate); // Gọi addLog với ngày đã chọn
+    setSelectedDate('');
+    setShowDatePicker(false);
+  };
+
   return (
     <div className="input-section">
       <textarea
@@ -49,12 +66,54 @@ function DiaryForm({
           Tính phí
         </label>
       </div>
-      <button
-        onClick={addLog}
-        className="btn btn-add"
-      >
-        ➕ Thêm nhật ký buổi học hôm nay
-      </button>
+      
+      <div className="diary-actions">
+        <button
+          onClick={handleAddTodayLog}
+          className="btn btn-add"
+        >
+          ➕ Thêm nhật ký buổi học hôm nay
+        </button>
+        
+        <button
+          onClick={() => setShowDatePicker(!showDatePicker)}
+          className="btn btn-secondary"
+        >
+          📝 Bổ sung nhật ký ngày khác
+        </button>
+      </div>
+
+      {showDatePicker && (
+        <div className="date-picker-section">
+          <h4>📅 Chọn ngày cần bổ sung nhật ký</h4>
+          <div className="date-input-group">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]} // Không cho chọn ngày tương lai
+            />
+            <div className="date-actions">
+              <button
+                onClick={handleAddCustomDateLog}
+                className="btn btn-success"
+                disabled={!selectedDate}
+              >
+                ✅ Thêm nhật ký
+              </button>
+              <button
+                onClick={() => {
+                  setShowDatePicker(false);
+                  setSelectedDate('');
+                }}
+                className="btn btn-secondary"
+              >
+                ❌ Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

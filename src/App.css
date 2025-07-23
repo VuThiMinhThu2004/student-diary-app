@@ -1420,3 +1420,74 @@ tr:hover {
 .course-header .btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* Diary Actions and Date Picker Styles */
+.diary-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.diary-actions .btn {
+  flex: 1;
+  min-width: 200px;
+}
+
+.date-picker-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.date-picker-section h4 {
+  color: #2c80b9;
+  margin-bottom: 15px;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.date-input-group input[type="date"] {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  max-width: 200px;
+}
+
+.date-input-group input[type="date"]:focus {
+  border-color: #2c80b9;
+  outline: none;
+  box-shadow: 0 0 5px rgba(44, 128, 185, 0.3);
+}
+
+.date-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date-actions .btn {
+  padding: 8px 16px;
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  .diary-actions {
+    flex-direction: column;
+  }
+  
+  .diary-actions .btn {
+    min-width: unset;
+  }
+  
+  .date-actions {
+    flex-direction: column;
+  }
+}

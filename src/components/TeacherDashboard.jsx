@@ -271,7 +271,7 @@ function TeacherDashboard({ user, onLogout }) {
   };
 
   // Thêm nhật ký mới
-  const addLog = async () => {
+  const addLog = async (customDate = null) => {
     if (!note.trim()) {
       alert('Vui lòng nhập nội dung nhật ký');
       return;
@@ -283,9 +283,20 @@ function TeacherDashboard({ user, onLogout }) {
     }
 
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Sử dụng ngày được chọn hoặc ngày hôm nay
+      const logDate = customDate || new Date().toISOString().split('T')[0];
+      
+      // Kiểm tra xem đã có nhật ký cho ngày này chưa
+      const existingLogs = logs.filter(log => log.date === logDate);
+      if (existingLogs.length > 0) {
+        const confirmAdd = window.confirm(`Đã có nhật ký cho ngày ${logDate}. Bạn có muốn thêm nhật ký khác cho ngày này không?`);
+        if (!confirmAdd) {
+          return;
+        }
+      }
+      
       await addDoc(collection(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary'), {
-        date: today,
+        date: logDate,
         note: note.trim(),
         advantages: advantages.trim(),
         errors: errors.trim(),
@@ -300,6 +311,13 @@ function TeacherDashboard({ user, onLogout }) {
       setHomework('');
       setIsPaid(false);
       await loadStudentLogs(selectedStudentId, selectedCourseId);
+      
+      // Thông báo thành công
+      if (customDate) {
+        alert(`Đã thêm nhật ký cho ngày ${logDate} thành công!`);
+      } else {
+        alert('Đã thêm nhật ký hôm nay thành công!');
+      }
     } catch (error) {
       console.error('Lỗi thêm nhật ký:', error);
       alert('Lỗi thêm nhật ký: ' + error.message);
