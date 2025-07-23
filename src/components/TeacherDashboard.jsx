@@ -90,7 +90,7 @@ function TeacherDashboard({ user, onLogout }) {
         id: doc.id,
         ...doc.data()
       }));
-      logsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      logsData.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sắp xếp tăng dần theo ngày
       setLogs(logsData);
     } catch (error) {
       console.error('Lỗi tải nhật ký:', error);

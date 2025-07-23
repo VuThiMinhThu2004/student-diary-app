@@ -29,7 +29,7 @@ function DiaryHistory({
         <table>
           <thead>
             <tr>
-              <th>#</th>
+              <th>STT</th>
               <th>Ngày</th>
               <th>Nội dung</th>
               <th>Ưu điểm</th>
