@@ -6,11 +6,10 @@ import DiaryForm from './DiaryForm';
 import ProgressTracker from './ProgressTracker';
 import DiaryHistory from './DiaryHistory';
 import CourseManager from './CourseManager';
-import StudentCourseAssignment from './StudentCourseAssignment';
 
 function TeacherDashboard({ user, onLogout }) {
   // State cho quản lý tab
-  const [activeTab, setActiveTab] = useState('students'); // 'students', 'dashboard', 'courses', 'assignments'
+  const [activeTab, setActiveTab] = useState('students'); // 'students', 'dashboard', 'courses'
   
   // State cho quản lý học sinh
   const [students, setStudents] = useState([]);
@@ -371,15 +370,6 @@ function TeacherDashboard({ user, onLogout }) {
               >
                 📚 Quản lý khóa học
               </button>
-              <button 
-                className={`btn ${activeTab === 'assignments' ? 'btn-primary' : 'btn-secondary'}`}
-                onClick={() => {
-                  setActiveTab('assignments');
-                  setShowCreateForm(false);
-                }}
-              >
-                📝 Đăng ký khóa học
-              </button>
             </div>
           </div>
         </div>
@@ -387,11 +377,6 @@ function TeacherDashboard({ user, onLogout }) {
         {/* Tab Quản lý khóa học */}
         {activeTab === 'courses' && (
           <CourseManager user={user} />
-        )}
-
-        {/* Tab Đăng ký khóa học */}
-        {activeTab === 'assignments' && (
-          <StudentCourseAssignment user={user} />
         )}
 
         {/* Tab Dashboard tổng quan */}

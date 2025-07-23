@@ -36,7 +36,8 @@ function LoginSelector({ onLoginSuccess }) {
   return (
     <div className="login-selector">
       <div className="selector-container">
-        <h1>🎓 Hệ thống nhật ký học tập</h1>
+        <h1>🎹 Nhật ký học tập</h1>
+        <p className="english-subtitle">Study Diary</p>
         <p className="selector-subtitle">Vui lòng chọn loại tài khoản để đăng nhập</p>
         
         <div className="login-options">
@@ -47,12 +48,12 @@ function LoginSelector({ onLoginSuccess }) {
             <div className="option-icon">👨‍🏫</div>
             <h3>Giáo viên</h3>
             <p>Quản lý học sinh và nhật ký học tập</p>
-            <ul>
+            {/* <ul>
               <li>✅ Tạo tài khoản học sinh</li>
               <li>✅ Quản lý nhật ký học tập</li>
               <li>✅ Theo dõi tiến độ học</li>
               <li>✅ Quản lý thanh toán</li>
-            </ul>
+            </ul> */}
             <button className="btn btn-teacher">Đăng nhập Giáo viên</button>
           </div>
 
@@ -63,12 +64,12 @@ function LoginSelector({ onLoginSuccess }) {
             <div className="option-icon">🎓</div>
             <h3>Học sinh</h3>
             <p>Xem nhật ký và tiến độ học tập</p>
-            <ul>
+            {/* <ul>
               <li>📖 Xem nhật ký của bản thân</li>
               <li>📊 Theo dõi tiến độ học</li>
               <li>💰 Xem tình trạng thanh toán</li>
               <li>📝 Xem bài tập và ghi chú</li>
-            </ul>
+            </ul> */}
             <button className="btn btn-student">Đăng nhập Học sinh</button>
           </div>
         </div>
