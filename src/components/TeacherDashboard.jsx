@@ -40,6 +40,8 @@ function TeacherDashboard({ user, onLogout }) {
   
   // State cho quản lý nhật ký
   const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [studentCourses, setStudentCourses] = useState([]);
   const [logs, setLogs] = useState([]);
   const [note, setNote] = useState('');
   const [advantages, setAdvantages] = useState('');
@@ -74,10 +76,15 @@ function TeacherDashboard({ user, onLogout }) {
     loadStudents();
   }, [loadStudents]);
 
-  // Load nhật ký của học sinh
-  const loadStudentLogs = async (studentId) => {
+  // Load nhật ký của học sinh theo khóa học
+  const loadStudentLogs = async (studentId, courseId) => {
     try {
-      const logsRef = collection(db, 'students', studentId, 'diary');
+      if (!courseId) {
+        setLogs([]);
+        return;
+      }
+      
+      const logsRef = collection(db, 'students', studentId, 'courses', courseId, 'diary');
       const snapshot = await getDocs(logsRef);
       const logsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -229,16 +236,55 @@ function TeacherDashboard({ user, onLogout }) {
     }
   };
 
+  // Load danh sách khóa học của học sinh
+  const loadStudentCourses = async (studentId) => {
+    try {
+      console.log('Loading courses for student:', studentId);
+      
+      // Lấy thông tin học sinh
+      const studentDoc = await getDocs(collection(db, 'users'));
+      const student = studentDoc.docs.find(doc => doc.id === studentId);
+      
+      if (student && student.data().enrolledCourses) {
+        // Lấy danh sách course IDs mà học sinh đã đăng ký
+        const courseIds = student.data().enrolledCourses;
+        
+        // Lấy thông tin chi tiết các khóa học
+        const coursesRef = collection(db, 'courses');
+        const coursesSnapshot = await getDocs(coursesRef);
+        const allCourses = coursesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        // Filter chỉ lấy các khóa học mà học sinh đã đăng ký
+        const enrolledCourses = allCourses.filter(course => courseIds.includes(course.id));
+        console.log('Student enrolled courses:', enrolledCourses);
+        setStudentCourses(enrolledCourses);
+      } else {
+        setStudentCourses([]);
+      }
+    } catch (error) {
+      console.error('Lỗi tải danh sách khóa học của học sinh:', error);
+      setStudentCourses([]);
+    }
+  };
+
   // Thêm nhật ký mới
   const addLog = async () => {
     if (!note.trim()) {
       alert('Vui lòng nhập nội dung nhật ký');
       return;
     }
+    
+    if (!selectedCourseId) {
+      alert('Vui lòng chọn khóa học');
+      return;
+    }
 
     try {
       const today = new Date().toISOString().split('T')[0];
-      await addDoc(collection(db, 'students', selectedStudentId, 'diary'), {
+      await addDoc(collection(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary'), {
         date: today,
         note: note.trim(),
         advantages: advantages.trim(),
@@ -253,7 +299,7 @@ function TeacherDashboard({ user, onLogout }) {
       setErrors('');
       setHomework('');
       setIsPaid(false);
-      await loadStudentLogs(selectedStudentId);
+      await loadStudentLogs(selectedStudentId, selectedCourseId);
     } catch (error) {
       console.error('Lỗi thêm nhật ký:', error);
       alert('Lỗi thêm nhật ký: ' + error.message);
@@ -277,7 +323,7 @@ function TeacherDashboard({ user, onLogout }) {
     }
 
     try {
-      await updateDoc(doc(db, 'students', selectedStudentId, 'diary', editingLog), {
+      await updateDoc(doc(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary', editingLog), {
         note: editNote.trim(),
         advantages: editAdvantages.trim(),
         errors: editErrors.trim(),
@@ -287,7 +333,7 @@ function TeacherDashboard({ user, onLogout }) {
       });
 
       setEditingLog(null);
-      await loadStudentLogs(selectedStudentId);
+      await loadStudentLogs(selectedStudentId, selectedCourseId);
     } catch (error) {
       console.error('Lỗi cập nhật nhật ký:', error);
       alert('Lỗi cập nhật: ' + error.message);
@@ -310,8 +356,8 @@ function TeacherDashboard({ user, onLogout }) {
     }
 
     try {
-      await deleteDoc(doc(db, 'students', selectedStudentId, 'diary', logId));
-      await loadStudentLogs(selectedStudentId);
+      await deleteDoc(doc(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary', logId));
+      await loadStudentLogs(selectedStudentId, selectedCourseId);
     } catch (error) {
       console.error('Lỗi xóa nhật ký:', error);
       alert('Lỗi xóa nhật ký: ' + error.message);
@@ -678,7 +724,9 @@ function TeacherDashboard({ user, onLogout }) {
                               className="btn btn-primary btn-sm"
                               onClick={() => {
                                 setSelectedStudentId(student.id);
-                                loadStudentLogs(student.id);
+                                setSelectedCourseId(null); // Reset course selection
+                                setLogs([]); // Clear logs
+                                loadStudentCourses(student.id); // Load courses for this student
                               }}
                             >
                               📖 Xem nhật ký
@@ -709,46 +757,115 @@ function TeacherDashboard({ user, onLogout }) {
               <div className="student-diary-section">
                 <h3>📖 Nhật ký học tập - {selectedStudent.fullName || selectedStudent.email}</h3>
                 
-                <ProgressTracker 
-                  attendedCount={attendedCount}
-                  paidCount={paidCount}
-                  freeCount={freeCount}
-                  totalSessions={selectedStudent.totalSessions || 30}
-                />
+                {!selectedCourseId ? (
+                  // Hiển thị danh sách khóa học để chọn
+                  <div className="course-selection">
+                    <h4>📚 Chọn khóa học để xem nhật ký:</h4>
+                    {studentCourses.length === 0 ? (
+                      <div className="no-courses">
+                        <p>🚫 Học sinh chưa đăng ký khóa học nào.</p>
+                        <p>Vui lòng vào tab "📝 Đăng ký khóa học" để đăng ký khóa học cho học sinh.</p>
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => {
+                            setSelectedStudentId(null);
+                            setSelectedCourseId(null);
+                            setStudentCourses([]);
+                          }}
+                        >
+                          ← Quay lại danh sách học sinh
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="courses-grid">
+                        {studentCourses.map(course => (
+                          <div key={course.id} className="course-card clickable" 
+                               onClick={() => {
+                                 setSelectedCourseId(course.id);
+                                 loadStudentLogs(selectedStudentId, course.id);
+                               }}>
+                            <h4>📖 {course.name}</h4>
+                            {course.description && (
+                              <p className="course-description">{course.description}</p>
+                            )}
+                            <div className="course-actions">
+                              <span className="click-hint">👆 Nhấn để xem nhật ký</span>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="back-button-container">
+                          <button 
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              setSelectedStudentId(null);
+                              setSelectedCourseId(null);
+                              setStudentCourses([]);
+                            }}
+                          >
+                            ← Quay lại danh sách học sinh
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Hiển thị nhật ký của khóa học đã chọn
+                  <div className="course-diary">
+                    <div className="course-header">
+                      <h4>📚 Khóa học: {studentCourses.find(c => c.id === selectedCourseId)?.name}</h4>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          setSelectedCourseId(null);
+                          setLogs([]);
+                        }}
+                      >
+                        ← Quay lại chọn khóa học
+                      </button>
+                    </div>
+                    
+                    <ProgressTracker 
+                      attendedCount={attendedCount}
+                      paidCount={paidCount}
+                      freeCount={freeCount}
+                      totalSessions={selectedStudent.totalSessions || 30}
+                    />
 
-                <DiaryForm
-                  note={note}
-                  setNote={setNote}
-                  advantages={advantages}
-                  setAdvantages={setAdvantages}
-                  errors={errors}
-                  setErrors={setErrors}
-                  homework={homework}
-                  setHomework={setHomework}
-                  isPaid={isPaid}
-                  setIsPaid={setIsPaid}
-                  addLog={addLog}
-                />
+                    <DiaryForm
+                      note={note}
+                      setNote={setNote}
+                      advantages={advantages}
+                      setAdvantages={setAdvantages}
+                      errors={errors}
+                      setErrors={setErrors}
+                      homework={homework}
+                      setHomework={setHomework}
+                      isPaid={isPaid}
+                      setIsPaid={setIsPaid}
+                      addLog={addLog}
+                    />
 
-                <DiaryHistory
-                  logs={logs}
-                  userRole="teacher"
-                  editingLog={editingLog}
-                  editNote={editNote}
-                  setEditNote={setEditNote}
-                  editAdvantages={editAdvantages}
-                  setEditAdvantages={setEditAdvantages}
-                  editErrors={editErrors}
-                  setEditErrors={setEditErrors}
-                  editHomework={editHomework}
-                  setEditHomework={setEditHomework}
-                  editIsPaid={editIsPaid}
-                  setEditIsPaid={setEditIsPaid}
-                  startEditing={startEditing}
-                  saveEdit={saveEdit}
-                  cancelEditing={cancelEditing}
-                  deleteLog={deleteLog}
-                />
+                    <DiaryHistory
+                      logs={logs}
+                      userRole="teacher"
+                      editingLog={editingLog}
+                      editNote={editNote}
+                      setEditNote={setEditNote}
+                      editAdvantages={editAdvantages}
+                      setEditAdvantages={setEditAdvantages}
+                      editErrors={editErrors}
+                      setEditErrors={setEditErrors}
+                      editHomework={editHomework}
+                      setEditHomework={setEditHomework}
+                      editIsPaid={editIsPaid}
+                      setEditIsPaid={setEditIsPaid}
+                      startEditing={startEditing}
+                      saveEdit={saveEdit}
+                      cancelEditing={cancelEditing}
+                      deleteLog={deleteLog}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
