@@ -22,7 +22,7 @@ function DiaryRow({
 }) {
   return (
     <tr>
-      <td>{index + 1}</td>
+      <td>{index}</td>
       <td>{log.date}</td>
       <td>
         {editingLog && editingLog.id === log.id ? (

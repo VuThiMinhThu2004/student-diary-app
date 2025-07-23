@@ -16,12 +16,17 @@ service cloud.firestore {
         resource.data.teacherId == request.auth.uid;
     }
     
-    // Quy tắc cho students collection (nhật ký cũ)
+    // Quy tắc cho diary collection (cấu trúc mới - flat collection)
+    match /diary/{logId} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Quy tắc cho students collection (nhật ký cũ) - để backward compatibility
     match /students/{studentId}/diary/{logId} {
       allow read, write: if request.auth != null;
     }
     
-    // Quy tắc cho students collection với courses subcollection (cấu trúc mới)
+    // Quy tắc cho students collection với courses subcollection (cấu trúc cũ) - để backward compatibility
     match /students/{studentId}/courses/{courseId}/diary/{logId} {
       allow read, write: if request.auth != null;
     }

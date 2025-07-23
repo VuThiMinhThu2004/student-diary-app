@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, updateDoc, query, where } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import UserHeader from './UserHeader';
 import DiaryForm from './DiaryForm';
@@ -84,13 +84,23 @@ function TeacherDashboard({ user, onLogout }) {
         return;
       }
       
-      const logsRef = collection(db, 'students', studentId, 'courses', courseId, 'diary');
-      const snapshot = await getDocs(logsRef);
+      console.log('Loading logs for student:', studentId, 'course:', courseId);
+      const logsRef = collection(db, 'diary');
+      const q = query(
+        logsRef,
+        where('studentId', '==', studentId),
+        where('courseId', '==', courseId)
+      );
+      const snapshot = await getDocs(q);
       const logsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      logsData.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sắp xếp tăng dần theo ngày
+      
+      // Sort on client side in descending order (newest first)
+      logsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      console.log('Loaded logs:', logsData);
       setLogs(logsData);
     } catch (error) {
       console.error('Lỗi tải nhật ký:', error);
@@ -295,7 +305,9 @@ function TeacherDashboard({ user, onLogout }) {
         }
       }
       
-      await addDoc(collection(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary'), {
+      await addDoc(collection(db, 'diary'), {
+        studentId: selectedStudentId,
+        courseId: selectedCourseId,
         date: logDate,
         note: note.trim(),
         advantages: advantages.trim(),
@@ -326,6 +338,9 @@ function TeacherDashboard({ user, onLogout }) {
 
   // Chỉnh sửa nhật ký
   const startEditing = (log) => {
+    console.log('Starting to edit diary entry:', log);
+    console.log('Current state:', { selectedStudentId, selectedCourseId });
+    
     setEditingLog(log.id);
     setEditNote(log.note || '');
     setEditAdvantages(log.advantages || '');
@@ -340,8 +355,27 @@ function TeacherDashboard({ user, onLogout }) {
       return;
     }
 
+    if (!selectedStudentId || !selectedCourseId) {
+      alert('Lỗi: Không xác định được học sinh hoặc khóa học');
+      console.error('Missing selectedStudentId or selectedCourseId', { selectedStudentId, selectedCourseId });
+      return;
+    }
+
     try {
-      await updateDoc(doc(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary', editingLog), {
+      console.log('Updating diary entry:', {
+        studentId: selectedStudentId,
+        courseId: selectedCourseId,
+        diaryId: editingLog,
+        data: {
+          note: editNote.trim(),
+          advantages: editAdvantages.trim(),
+          errors: editErrors.trim(),
+          homework: editHomework.trim(),
+          isPaid: editIsPaid
+        }
+      });
+
+      await updateDoc(doc(db, 'diary', editingLog), {
         note: editNote.trim(),
         advantages: editAdvantages.trim(),
         errors: editErrors.trim(),
@@ -350,8 +384,10 @@ function TeacherDashboard({ user, onLogout }) {
         updatedAt: new Date()
       });
 
+      console.log('Diary entry updated successfully');
       setEditingLog(null);
       await loadStudentLogs(selectedStudentId, selectedCourseId);
+      alert('Cập nhật nhật ký thành công!');
     } catch (error) {
       console.error('Lỗi cập nhật nhật ký:', error);
       alert('Lỗi cập nhật: ' + error.message);
@@ -373,9 +409,23 @@ function TeacherDashboard({ user, onLogout }) {
       return;
     }
 
+    if (!selectedStudentId || !selectedCourseId) {
+      alert('Lỗi: Không xác định được học sinh hoặc khóa học');
+      console.error('Missing selectedStudentId or selectedCourseId', { selectedStudentId, selectedCourseId });
+      return;
+    }
+
     try {
-      await deleteDoc(doc(db, 'students', selectedStudentId, 'courses', selectedCourseId, 'diary', logId));
+      console.log('Deleting diary entry:', {
+        studentId: selectedStudentId,
+        courseId: selectedCourseId,
+        diaryId: logId
+      });
+
+      await deleteDoc(doc(db, 'diary', logId));
+      console.log('Diary entry deleted successfully');
       await loadStudentLogs(selectedStudentId, selectedCourseId);
+      alert('Xóa nhật ký thành công!');
     } catch (error) {
       console.error('Lỗi xóa nhật ký:', error);
       alert('Lỗi xóa nhật ký: ' + error.message);

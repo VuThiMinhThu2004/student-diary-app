@@ -43,7 +43,7 @@ function DiaryHistory({
             {logs.map((log, index) => (
               <DiaryRow
                 key={log.id}
-                index={index}
+                index={logs.length - index}
                 log={log}
                 editingLog={editingLog}
                 editNote={editNote}
