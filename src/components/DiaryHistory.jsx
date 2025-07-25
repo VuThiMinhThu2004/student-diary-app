@@ -4,7 +4,21 @@ import DiaryRow from './DiaryRow';
 function DiaryHistory({
   logs,
   deleteLog,
-  userRole = "student"
+  userRole = "student",
+  editingLogId,
+  startEditLog,
+  saveEditLog,
+  cancelEditLog,
+  editNote,
+  setEditNote,
+  editAdvantages,
+  setEditAdvantages,
+  editErrors,
+  setEditErrors,
+  editHomework,
+  setEditHomework,
+  editIsPaid,
+  setEditIsPaid
 }) {
   return (
     <div className="history-section">
@@ -33,6 +47,20 @@ function DiaryHistory({
                 log={log}
                 deleteLog={deleteLog}
                 userRole={userRole}
+                editingLogId={editingLogId}
+                startEditLog={startEditLog}
+                saveEditLog={saveEditLog}
+                cancelEditLog={cancelEditLog}
+                editNote={editNote}
+                setEditNote={setEditNote}
+                editAdvantages={editAdvantages}
+                setEditAdvantages={setEditAdvantages}
+                editErrors={editErrors}
+                setEditErrors={setEditErrors}
+                editHomework={editHomework}
+                setEditHomework={setEditHomework}
+                editIsPaid={editIsPaid}
+                setEditIsPaid={setEditIsPaid}
               />
             ))}
           </tbody>

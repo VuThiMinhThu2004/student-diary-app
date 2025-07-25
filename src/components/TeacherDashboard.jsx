@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, query, where, updateDoc } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import UserHeader from './UserHeader';
 import DiaryForm from './DiaryForm';
@@ -48,6 +48,14 @@ function TeacherDashboard({ user, onLogout }) {
   const [errors, setErrors] = useState('');
   const [homework, setHomework] = useState('');
   const [isPaid, setIsPaid] = useState(false);
+  
+  // State cho chỉnh sửa nhật ký
+  const [editingLogId, setEditingLogId] = useState(null);
+  const [editNote, setEditNote] = useState('');
+  const [editAdvantages, setEditAdvantages] = useState('');
+  const [editErrors, setEditErrors] = useState('');
+  const [editHomework, setEditHomework] = useState('');
+  const [editIsPaid, setEditIsPaid] = useState(false);
 
   const db = getFirestore();
   const auth = getAuth();
@@ -357,6 +365,63 @@ function TeacherDashboard({ user, onLogout }) {
       console.error('Lỗi xóa nhật ký:', error);
       alert('Lỗi xóa nhật ký: ' + error.message);
     }
+  };
+
+  // Bắt đầu chỉnh sửa nhật ký
+  const startEditLog = (log) => {
+    setEditingLogId(log.id);
+    setEditNote(log.note || '');
+    setEditAdvantages(log.advantages || '');
+    setEditErrors(log.errors || '');
+    setEditHomework(log.homework || '');
+    setEditIsPaid(log.isPaid || false);
+  };
+
+  // Lưu chỉnh sửa nhật ký
+  const saveEditLog = async (logId) => {
+    if (!selectedStudentId || !selectedCourseId) {
+      alert('Lỗi: Không xác định được học sinh hoặc khóa học');
+      return;
+    }
+
+    try {
+      const updateData = {
+        note: editNote.trim(),
+        advantages: editAdvantages.trim(),
+        errors: editErrors.trim(),
+        homework: editHomework.trim(),
+        isPaid: editIsPaid,
+        updatedAt: new Date()
+      };
+
+      await updateDoc(doc(db, 'diary', logId), updateData);
+      console.log('Diary entry updated successfully');
+      
+      // Reset edit state
+      setEditingLogId(null);
+      setEditNote('');
+      setEditAdvantages('');
+      setEditErrors('');
+      setEditHomework('');
+      setEditIsPaid(false);
+      
+      // Reload logs
+      await loadStudentLogs(selectedStudentId, selectedCourseId);
+      alert('Cập nhật nhật ký thành công!');
+    } catch (error) {
+      console.error('Lỗi cập nhật nhật ký:', error);
+      alert('Lỗi cập nhật nhật ký: ' + error.message);
+    }
+  };
+
+  // Hủy chỉnh sửa nhật ký
+  const cancelEditLog = () => {
+    setEditingLogId(null);
+    setEditNote('');
+    setEditAdvantages('');
+    setEditErrors('');
+    setEditHomework('');
+    setEditIsPaid(false);
   };
 
   // Lọc học sinh theo tìm kiếm
@@ -842,6 +907,20 @@ function TeacherDashboard({ user, onLogout }) {
                       logs={logs}
                       userRole="teacher"
                       deleteLog={deleteLog}
+                      editingLogId={editingLogId}
+                      startEditLog={startEditLog}
+                      saveEditLog={saveEditLog}
+                      cancelEditLog={cancelEditLog}
+                      editNote={editNote}
+                      setEditNote={setEditNote}
+                      editAdvantages={editAdvantages}
+                      setEditAdvantages={setEditAdvantages}
+                      editErrors={editErrors}
+                      setEditErrors={setEditErrors}
+                      editHomework={editHomework}
+                      setEditHomework={setEditHomework}
+                      editIsPaid={editIsPaid}
+                      setEditIsPaid={setEditIsPaid}
                     />
                   </div>
                 )}

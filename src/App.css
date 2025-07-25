@@ -1,20 +1,63 @@
 /* Thiết lập màu nền đơn giản và dễ nhìn */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #f0f7ff; /* Màu xanh nhạt dịu mắt */
   font-family: Arial, sans-serif;
   color: #333;
   margin: 0;
-  padding: 20px;
+  padding: 15px;
   min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 95vw; /* Sử dụng 95% viewport width */
   margin: 0 auto;
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 95%;
+}
+
+/* Desktop/Laptop responsive */
+@media (min-width: 1200px) {
+  body {
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 95vw; /* Tăng từ 90vw lên 95vw để sử dụng hầu hết màn hình */
+    padding: 30px;
+    margin: 0 auto; /* Đảm bảo căn giữa */
+  }
+}
+
+/* Tablet responsive */
+@media (min-width: 769px) and (max-width: 1199px) {
+  .container {
+    max-width: 92vw;
+    padding: 20px;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  body {
+    padding: 5px;
+    font-size: 14px;
+  }
+  
+  .container {
+    max-width: 100%;
+    padding: 10px;
+    width: 98%;
+    border-radius: 5px;
+  }
 }
 
 h1 {
@@ -22,6 +65,14 @@ h1 {
   color: #2c80b9; /* Màu xanh dương đậm */
   font-size: 2rem;
   margin-bottom: 1.5rem;
+}
+
+/* Responsive cho h1 */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .user-info {
@@ -45,6 +96,20 @@ h1 {
   cursor: pointer;
   font-weight: bold;
   transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+/* Responsive cho buttons */
+@media (max-width: 768px) {
+  .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
 }
 
 .btn-login {
@@ -95,6 +160,19 @@ textarea, input {
   background: white;
   color: #333;
   box-sizing: border-box;
+  font-size: 14px;
+}
+
+/* Responsive cho inputs */
+@media (max-width: 768px) {
+  textarea, input {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  textarea {
+    min-height: 60px;
+  }
 }
 
 .checkbox-section {
@@ -155,24 +233,74 @@ table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 5px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-size: 15px;
+  margin: 15px 0;
 }
 
 th, td {
-  padding: 10px;
+  padding: 15px 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  word-wrap: break-word;
 }
 
 th {
   background: #e6f2ff;
   color: #2c80b9;
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+/* Desktop/Laptop table improvements */
+@media (min-width: 1200px) {
+  table {
+    font-size: 16px;
+  }
+  
+  th, td {
+    padding: 18px 15px;
+  }
+  
+  th {
+    font-size: 17px;
+  }
 }
 
 tr:hover {
   background: #f5f9ff;
+}
+
+/* Responsive cho table trên mobile */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  th, td {
+    padding: 8px 4px;
+    min-width: 80px;
+  }
+  
+  th {
+    font-size: 11px;
+  }
+  
+  /* Ẩn một số cột ít quan trọng trên mobile */
+  th:nth-child(4), /* Ưu điểm */
+  td:nth-child(4),
+  th:nth-child(5), /* Lỗi cần sửa */
+  td:nth-child(5),
+  th:nth-child(6), /* Bài tập về nhà */
+  td:nth-child(6) {
+    display: none;
+  }
 }
 
 .login-container {
@@ -186,6 +314,7 @@ tr:hover {
   display: flex;
   gap: 8px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .btn-edit, .btn-delete {
@@ -194,6 +323,8 @@ tr:hover {
   border-radius: 4px;
   cursor: pointer;
   border: none;
+  min-width: 35px;
+  text-align: center;
 }
 
 .btn-edit {
@@ -217,10 +348,13 @@ tr:hover {
 .btn-save {
   background-color: #27ae60;
   color: white;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border: none;
   border-radius: 4px;
   margin-right: 5px;
+  font-size: 16px;
+  min-width: 35px;
+  text-align: center;
 }
 
 .btn-save:hover {
@@ -230,9 +364,12 @@ tr:hover {
 .btn-cancel {
   background-color: #7f8c8d;
   color: white;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border: none;
   border-radius: 4px;
+  font-size: 16px;
+  min-width: 35px;
+  text-align: center;
 }
 
 .btn-cancel:hover {
@@ -241,19 +378,47 @@ tr:hover {
 
 .edit-textarea, .edit-input {
   width: 100%;
-  padding: 5px;
-  border: 1px solid #ddd;
+  padding: 8px;
+  border: 2px solid #ddd;
   border-radius: 4px;
   background-color: white;
+  min-height: 60px;
+  font-size: 14px;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
-.edit-textarea {
-  min-height: 60px;
+.edit-textarea:focus, .edit-input:focus {
+  border-color: #2c80b9;
+  outline: none;
+  box-shadow: 0 0 5px rgba(44, 128, 185, 0.3);
 }
 
 .edit-buttons {
   display: flex;
+  gap: 5px;
   justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Mobile responsive cho edit buttons */
+@media (max-width: 768px) {
+  .action-buttons, .edit-buttons {
+    flex-direction: column;
+    gap: 3px;
+  }
+  
+  .btn-edit, .btn-delete, .btn-save, .btn-cancel {
+    font-size: 14px;
+    padding: 4px 6px;
+    min-width: 30px;
+  }
+  
+  .edit-textarea {
+    min-height: 40px;
+    font-size: 12px;
+    padding: 5px;
+  }
 }
 
 /* Teacher Dashboard Styles */
@@ -434,18 +599,28 @@ tr:hover {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Desktop form improvements */
+@media (min-width: 1200px) {
+  .form-row {
+    gap: 20px;
+    margin-bottom: 18px;
+  }
 }
 
 .form-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
 }
 
 .form-actions .btn {
   flex: 1;
+  max-width: 200px;
 }
 
 .form-input {
@@ -829,6 +1004,21 @@ tr:hover {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive cho header buttons */
+@media (max-width: 768px) {
+  .header-buttons {
+    gap: 5px;
+    justify-content: center;
+  }
+  
+  .header-buttons .btn {
+    font-size: 11px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
 }
 
 .dashboard-overview {
@@ -1057,22 +1247,27 @@ tr:hover {
 .teacher-navigation .section-header {
   background: linear-gradient(135deg, #2c80b9, #4a9eff);
   color: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
 }
 
 .teacher-navigation .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   flex-wrap: wrap;
-  margin-top: 15px;
+  margin-top: 20px;
+  justify-content: center;
 }
 
 .teacher-navigation .header-buttons .btn {
   border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
   font-weight: bold;
+  padding: 12px 20px;
+  font-size: 15px;
+  min-width: 180px;
+  text-align: center;
 }
 
 .teacher-navigation .header-buttons .btn-primary {
@@ -1104,6 +1299,14 @@ tr:hover {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 20px;
+}
+
+/* Responsive cho stats grid */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 .stat-card {
