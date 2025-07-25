@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
 import DiaryHistory from './DiaryHistory';
 import ProgressTracker from './ProgressTracker';
 
@@ -71,13 +71,25 @@ function CourseList({ user }) {
   const loadCourseDiary = async (courseId) => {
     setLoadingLogs(true);
     try {
-      const logsRef = collection(db, 'students', user.uid, 'courses', courseId, 'diary');
-      const snapshot = await getDocs(logsRef);
+      console.log('Loading diary for student:', user.uid, 'course:', courseId);
+      
+      // Sử dụng cấu trúc flat collection 'diary' giống như TeacherDashboard
+      const logsRef = collection(db, 'diary');
+      const q = query(
+        logsRef,
+        where('studentId', '==', user.uid),
+        where('courseId', '==', courseId)
+      );
+      const snapshot = await getDocs(q);
       const logsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      logsData.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sắp xếp tăng dần theo ngày
+      
+      // Sắp xếp giảm dần theo ngày (mới nhất trước)
+      logsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      console.log('Loaded diary entries:', logsData);
       setLogs(logsData);
     } catch (error) {
       console.error('Lỗi tải nhật ký khóa học:', error);
@@ -144,21 +156,7 @@ function CourseList({ user }) {
           <DiaryHistory
             logs={logs}
             userRole="student"
-            // Student không có quyền chỉnh sửa
-            editingLog={null}
-            editNote=""
-            setEditNote={() => {}}
-            editAdvantages=""
-            setEditAdvantages={() => {}}
-            editErrors=""
-            setEditErrors={() => {}}
-            editHomework=""
-            setEditHomework={() => {}}
-            editIsPaid={false}
-            setEditIsPaid={() => {}}
-            startEditing={() => {}}
-            saveEdit={() => {}}
-            cancelEditing={() => {}}
+            // Student không có quyền chỉnh sửa - chỉ truyền deleteLog để tránh error
             deleteLog={() => {}}
           />
         )}
