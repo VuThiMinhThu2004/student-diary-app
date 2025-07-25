@@ -277,29 +277,62 @@ tr:hover {
 /* Responsive cho table trên mobile */
 @media (max-width: 768px) {
   table {
-    font-size: 12px;
+    font-size: 10px;
     display: block;
     overflow-x: auto;
     white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
   
   th, td {
-    padding: 8px 4px;
-    min-width: 80px;
+    padding: 6px 2px;
+    min-width: 70px;
+    font-size: 10px;
+    word-break: break-word;
+    vertical-align: top;
   }
   
   th {
     font-size: 11px;
   }
   
-  /* Ẩn một số cột ít quan trọng trên mobile */
-  th:nth-child(4), /* Ưu điểm */
-  td:nth-child(4),
-  th:nth-child(5), /* Lỗi cần sửa */
-  td:nth-child(5),
-  th:nth-child(6), /* Bài tập về nhà */
-  td:nth-child(6) {
-    display: none;
+  /* Hiển thị tất cả cột trên mobile với scroll ngang */
+  th, td {
+    min-width: 70px;
+    font-size: 10px;
+    padding: 6px 2px;
+    word-break: break-word;
+  }
+  
+  /* Cột STT và Ngày nhỏ hơn */
+  th:nth-child(1), td:nth-child(1), /* STT */
+  th:nth-child(2), td:nth-child(2) { /* Ngày */
+    min-width: 50px;
+  }
+  
+  /* Cột Ưu điểm và Lỗi cần sửa - kích thước cố định 5.5cm */
+  th:nth-child(4), td:nth-child(4), /* Ưu điểm */
+  th:nth-child(5), td:nth-child(5) { /* Lỗi cần sửa */
+    min-width: 5.5cm;
+    max-width: 5.5cm;
+    width: 5.5cm;
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Cột Nội dung và Bài tập về nhà - kích thước lớn hơn */
+  th:nth-child(3), td:nth-child(3), /* Nội dung */
+  th:nth-child(6), td:nth-child(6) { /* Bài tập về nhà */
+    min-width: 100px;
+  }
+  
+  /* Cột Tính phí và Thao tác nhỏ hơn */
+  th:nth-child(7), td:nth-child(7), /* Tính phí */
+  th:nth-child(8), td:nth-child(8) { /* Thao tác */
+    min-width: 60px;
   }
 }
 
