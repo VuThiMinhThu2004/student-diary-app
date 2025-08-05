@@ -1626,6 +1626,272 @@ tr:hover {
   margin-top: 20px;
 }
 
+/* Teaching Schedule Styles */
+.teaching-schedule {
+  margin-bottom: 20px;
+}
+
+.schedule-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.schedule-header h2 {
+  color: #2c80b9;
+  margin-bottom: 5px;
+}
+
+.calendar-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+.calendar-navigation h3 {
+  margin: 0;
+  color: #2c80b9;
+  font-size: 1.3rem;
+}
+
+.calendar-container {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.calendar-grid {
+  width: 100%;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #2c80b9;
+  color: white;
+}
+
+.day-header {
+  padding: 15px 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #e0e0e0;
+}
+
+.calendar-day {
+  background: white;
+  min-height: 80px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day:hover {
+  background: #f0f7ff;
+}
+
+.calendar-day.selected {
+  background: #e3f2fd;
+  border: 2px solid #2c80b9;
+}
+
+.calendar-day.has-schedule {
+  background: #e8f5e8;
+}
+
+.calendar-day.has-schedule:hover {
+  background: #d4edda;
+}
+
+.calendar-day.empty {
+  background: #f8f9fa;
+  cursor: default;
+}
+
+.day-number {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.schedule-indicator {
+  background: #27ae60;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: auto;
+}
+
+.daily-schedule {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.daily-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.daily-header h3 {
+  margin: 0;
+  color: #2c80b9;
+}
+
+.schedule-form {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.schedule-form h4 {
+  color: #2c80b9;
+  margin-bottom: 15px;
+}
+
+.students-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.schedule-table {
+  overflow-x: auto;
+}
+
+.schedule-table table {
+  width: 100%;
+  margin: 0;
+}
+
+.schedule-table th:nth-child(1) { width: 12%; }
+.schedule-table th:nth-child(2) { width: 15%; }
+.schedule-table th:nth-child(3) { width: 20%; }
+.schedule-table th:nth-child(4) { width: 38%; }
+.schedule-table th:nth-child(5) { width: 15%; }
+
+.students-list {
+  white-space: pre-line;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.no-schedule {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  color: #666;
+}
+
+.schedule-instruction {
+  text-align: center;
+  padding: 30px 20px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  color: #666;
+  border: 2px dashed #2c80b9;
+}
+
+.schedule-instruction p {
+  margin: 8px 0;
+}
+
+.schedule-instruction p:first-child {
+  font-weight: bold;
+  color: #2c80b9;
+  font-size: 1.1rem;
+}
+
+/* Mobile responsive for calendar */
+@media (max-width: 768px) {
+  .calendar-navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .calendar-navigation h3 {
+    font-size: 1.1rem;
+  }
+  
+  .day-header {
+    padding: 10px 4px;
+    font-size: 0.8rem;
+  }
+  
+  .calendar-day {
+    min-height: 60px;
+    padding: 4px;
+  }
+  
+  .day-number {
+    font-size: 0.9rem;
+  }
+  
+  .schedule-indicator {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+  }
+  
+  .daily-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .daily-header h3 {
+    font-size: 1rem;
+    text-align: center;
+  }
+  
+  .schedule-form {
+    padding: 15px;
+  }
+  
+  .schedule-table {
+    font-size: 0.8rem;
+  }
+  
+  .schedule-table th,
+  .schedule-table td {
+    padding: 8px 4px;
+  }
+  
+  .students-list {
+    font-size: 0.8rem;
+  }
+  
+  .schedule-instruction {
+    padding: 20px 15px;
+  }
+}
+
 /* Course Diary Styles */
 .course-diary {
   margin-top: 20px;
