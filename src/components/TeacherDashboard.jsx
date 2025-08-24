@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, query, where, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, addDoc, query, where, updateDoc, arrayUnion } from 'firebase/firestore';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import UserHeader from './UserHeader';
 import DiaryForm from './DiaryForm';
@@ -24,8 +24,6 @@ function TeacherDashboard({ user, onLogout }) {
   const [newStudentBirthDate, setNewStudentBirthDate] = useState('');
   const [newStudentPhone, setNewStudentPhone] = useState('');
   const [newStudentCourse, setNewStudentCourse] = useState('');
-  const [newStudentTotalSessions, setNewStudentTotalSessions] = useState('30');
-  const [newStudentTuition, setNewStudentTuition] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   
   // State cho chỉnh sửa thông tin học sinh
@@ -35,8 +33,6 @@ function TeacherDashboard({ user, onLogout }) {
   const [editStudentBirthDate, setEditStudentBirthDate] = useState('');
   const [editStudentPhone, setEditStudentPhone] = useState('');
   const [editStudentCourse, setEditStudentCourse] = useState('');
-  const [editStudentTotalSessions, setEditStudentTotalSessions] = useState('30');
-  const [editStudentTuition, setEditStudentTuition] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   
   // State cho quản lý nhật ký
@@ -58,6 +54,8 @@ function TeacherDashboard({ user, onLogout }) {
   const [editHomework, setEditHomework] = useState('');
   const [editIsPaid, setEditIsPaid] = useState(false);
 
+  const [currentCourseInfo, setCurrentCourseInfo] = useState({ totalSessions: 30, tuition: 0 });
+
   const db = getFirestore();
   const auth = getAuth();
 
@@ -78,6 +76,26 @@ function TeacherDashboard({ user, onLogout }) {
   useEffect(() => {
     loadStudents();
   }, [loadStudents]);
+
+  // Load tất cả thông tin khóa học của học sinh (cho dashboard stats)
+  const loadAllStudentCourses = useCallback(async () => {
+    try {
+      const studentCoursesRef = collection(db, 'studentCourses');
+      const q = query(studentCoursesRef, where('teacherId', '==', user.uid));
+      const snapshot = await getDocs(q);
+      const studentCoursesList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setStudentCourses(studentCoursesList);
+    } catch (error) {
+      console.error('Lỗi khi tải thông tin khóa học:', error);
+    }
+  }, [db, user.uid]);
+
+  useEffect(() => {
+    loadAllStudentCourses(); // Load thông tin khóa học của tất cả học sinh
+  }, [loadAllStudentCourses]);
 
   // Load nhật ký của học sinh theo khóa học
   const loadStudentLogs = async (studentId, courseId) => {
@@ -142,8 +160,6 @@ function TeacherDashboard({ user, onLogout }) {
         birthDate: newStudentBirthDate.trim() || null,
         phone: newStudentPhone,
         course: newStudentCourse,
-        totalSessions: parseInt(newStudentTotalSessions) || 30,
-        tuition: parseInt(newStudentTuition) || 0,
         studentCode: generateStudentCode(),
         enrolledCourses: [], // Mảng rỗng ban đầu
         createdAt: new Date()
@@ -159,8 +175,6 @@ function TeacherDashboard({ user, onLogout }) {
       setNewStudentBirthDate('');
       setNewStudentPhone('');
       setNewStudentCourse('');
-      setNewStudentTotalSessions('30');
-      setNewStudentTuition('');
       setShowCreateForm(false);
       
       await loadStudents();
@@ -182,8 +196,6 @@ function TeacherDashboard({ user, onLogout }) {
     setEditStudentBirthDate(student.birthDate || '');
     setEditStudentPhone(student.phone || '');
     setEditStudentCourse(student.course || '');
-    setEditStudentTotalSessions(student.totalSessions ? student.totalSessions.toString() : '30');
-    setEditStudentTuition(student.tuition ? student.tuition.toString() : '');
   };
 
   const saveEditStudent = async () => {
@@ -200,8 +212,6 @@ function TeacherDashboard({ user, onLogout }) {
         birthDate: editStudentBirthDate.trim() || null,
         phone: editStudentPhone.trim(),
         course: editStudentCourse.trim(),
-        totalSessions: parseInt(editStudentTotalSessions) || 30,
-        tuition: parseInt(editStudentTuition) || 0,
         updatedAt: new Date()
       };
 
@@ -225,8 +235,6 @@ function TeacherDashboard({ user, onLogout }) {
     setEditStudentBirthDate('');
     setEditStudentPhone('');
     setEditStudentCourse('');
-    setEditStudentTotalSessions('30');
-    setEditStudentTuition('');
   };
 
   // Xóa học sinh
@@ -280,6 +288,74 @@ function TeacherDashboard({ user, onLogout }) {
     } catch (error) {
       console.error('Lỗi tải danh sách khóa học của học sinh:', error);
       setStudentCourses([]);
+    }
+  };
+
+  // Load thông tin đăng ký khóa học (số buổi, học phí) của học sinh
+  const loadStudentCourseInfo = async (studentId, courseId) => {
+    try {
+      const q = query(
+        collection(db, 'studentCourses'),
+        where('studentId', '==', studentId),
+        where('courseId', '==', courseId)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const courseInfo = querySnapshot.docs[0].data();
+        return {
+          id: querySnapshot.docs[0].id,
+          totalSessions: courseInfo.totalSessions || 30,
+          tuition: courseInfo.tuition || 0
+        };
+      }
+      return { totalSessions: 30, tuition: 0 }; // Default values
+    } catch (error) {
+      console.error('Lỗi tải thông tin khóa học:', error);
+      return { totalSessions: 30, tuition: 0 };
+    }
+  };
+
+  // Cập nhật thông tin khóa học (số buổi, học phí)
+  const updateStudentCourseInfo = async (studentId, courseId, totalSessions, tuition) => {
+    try {
+      const q = query(
+        collection(db, 'studentCourses'),
+        where('studentId', '==', studentId),
+        where('courseId', '==', courseId)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        // Cập nhật bản ghi hiện có
+        const docId = querySnapshot.docs[0].id;
+        await updateDoc(doc(db, 'studentCourses', docId), {
+          totalSessions: parseInt(totalSessions) || 30,
+          tuition: parseFloat(tuition) || 0,
+          updatedAt: new Date()
+        });
+      } else {
+        // Tạo bản ghi mới nếu chưa tồn tại
+        await addDoc(collection(db, 'studentCourses'), {
+          studentId: studentId,
+          courseId: courseId,
+          totalSessions: parseInt(totalSessions) || 30,
+          tuition: parseFloat(tuition) || 0,
+          enrolledAt: new Date(),
+          teacherId: user.uid
+        });
+        
+        // Cập nhật danh sách khóa học của học sinh
+        const studentDoc = doc(db, 'users', studentId);
+        await updateDoc(studentDoc, {
+          enrolledCourses: arrayUnion(courseId)
+        });
+      }
+      
+      alert('Cập nhật thông tin thành công!');
+    } catch (error) {
+      console.error('Lỗi cập nhật thông tin khóa học:', error);
+      alert('Lỗi: ' + error.message);
     }
   };
 
@@ -528,13 +604,13 @@ function TeacherDashboard({ user, onLogout }) {
                 </div>
                 <div className="stat-card revenue">
                   <div className="stat-value">
-                    {students.reduce((total, student) => total + (student.tuition || 0), 0).toLocaleString()} VNĐ
+                    {studentCourses.reduce((total, sc) => total + (sc.tuition || 0), 0).toLocaleString()} VNĐ
                   </div>
                   <div className="stat-label">Tổng doanh thu</div>
                 </div>
                 <div className="stat-card sessions">
                   <div className="stat-value">
-                    {students.reduce((total, student) => total + (student.totalSessions || 0), 0)}
+                    {studentCourses.reduce((total, sc) => total + (sc.totalSessions || 0), 0)}
                   </div>
                   <div className="stat-label">Tổng số buổi học</div>
                 </div>
@@ -553,23 +629,30 @@ function TeacherDashboard({ user, onLogout }) {
                       <th>Ngày sinh</th>
                       <th>SĐT</th>
                       <th>Khóa</th>
-                      <th>Buổi học</th>
-                      <th>Học phí</th>
+                      <th>Tổng buổi học</th>
+                      <th>Tổng học phí</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {students.map((student, index) => (
-                      <tr key={student.id}>
-                        <td>{index + 1}</td>
-                        <td>{student.fullName || student.email}</td>
-                        <td>{student.studentCode || 'N/A'}</td>
-                        <td>{student.birthDate || 'N/A'}</td>
-                        <td>{student.phone || 'N/A'}</td>
-                        <td>{student.course || 'N/A'}</td>
-                        <td>{student.totalSessions || 'N/A'}</td>
-                        <td>{student.tuition ? `${student.tuition.toLocaleString()} VNĐ` : 'N/A'}</td>
-                      </tr>
-                    ))}
+                    {students.map((student, index) => {
+                      // Tính tổng buổi học và học phí của học sinh này
+                      const studentEnrollments = studentCourses.filter(sc => sc.studentId === student.id);
+                      const totalSessions = studentEnrollments.reduce((sum, sc) => sum + (sc.totalSessions || 0), 0);
+                      const totalTuition = studentEnrollments.reduce((sum, sc) => sum + (sc.tuition || 0), 0);
+                      
+                      return (
+                        <tr key={student.id}>
+                          <td>{index + 1}</td>
+                          <td>{student.fullName || student.email}</td>
+                          <td>{student.studentCode || 'N/A'}</td>
+                          <td>{student.birthDate || 'N/A'}</td>
+                          <td>{student.phone || 'N/A'}</td>
+                          <td>{student.course || 'N/A'}</td>
+                          <td>{totalSessions || 0} buổi</td>
+                          <td>{totalTuition.toLocaleString()} VNĐ</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -660,23 +743,7 @@ function TeacherDashboard({ user, onLogout }) {
                       value={newStudentCourse}
                       onChange={(e) => setNewStudentCourse(e.target.value)}
                     />
-                    <input
-                      type="number"
-                      placeholder="Số buổi học"
-                      value={newStudentTotalSessions}
-                      onChange={(e) => setNewStudentTotalSessions(e.target.value)}
-                      min="1"
-                    />
-                  </div>
-                  
-                  <div className="form-row">
-                    <input
-                      type="number"
-                      placeholder="Học phí (VNĐ)"
-                      value={newStudentTuition}
-                      onChange={(e) => setNewStudentTuition(e.target.value)}
-                      min="0"
-                    />
+                    <div className="form-input-placeholder"></div>
                   </div>
                 </div>
                 
@@ -748,21 +815,6 @@ function TeacherDashboard({ user, onLogout }) {
                               value={editStudentCourse}
                               onChange={(e) => setEditStudentCourse(e.target.value)}
                             />
-                            <input
-                              type="number"
-                              placeholder="Số buổi"
-                              value={editStudentTotalSessions}
-                              onChange={(e) => setEditStudentTotalSessions(e.target.value)}
-                            />
-                          </div>
-                          
-                          <div className="form-group">
-                            <input
-                              type="number"
-                              placeholder="Học phí"
-                              value={editStudentTuition}
-                              onChange={(e) => setEditStudentTuition(e.target.value)}
-                            />
                           </div>
                           
                           <div className="form-actions">
@@ -789,8 +841,6 @@ function TeacherDashboard({ user, onLogout }) {
                           <p><strong>Ngày sinh:</strong> {student.birthDate || 'N/A'}</p>
                           <p><strong>SĐT:</strong> {student.phone || 'N/A'}</p>
                           <p><strong>Khóa:</strong> {student.course || 'N/A'}</p>
-                          <p><strong>Buổi học:</strong> {student.totalSessions || 'N/A'}</p>
-                          <p><strong>Học phí:</strong> {student.tuition ? `${student.tuition.toLocaleString()} VNĐ` : 'N/A'}</p>
                           
                           <div className="student-actions">
                             <button 
@@ -853,9 +903,12 @@ function TeacherDashboard({ user, onLogout }) {
                       <div className="courses-grid">
                         {studentCourses.map(course => (
                           <div key={course.id} className="course-card clickable" 
-                               onClick={() => {
+                               onClick={async () => {
                                  setSelectedCourseId(course.id);
                                  loadStudentLogs(selectedStudentId, course.id);
+                                 // Load thông tin khóa học (số buổi, học phí)
+                                 const courseInfo = await loadStudentCourseInfo(selectedStudentId, course.id);
+                                 setCurrentCourseInfo(courseInfo);
                                }}>
                             <h4>📖 {course.name}</h4>
                             {course.description && (
@@ -901,7 +954,13 @@ function TeacherDashboard({ user, onLogout }) {
                       attendedCount={attendedCount}
                       paidCount={paidCount}
                       freeCount={freeCount}
-                      totalSessions={selectedStudent.totalSessions || 30}
+                      totalSessions={currentCourseInfo.totalSessions}
+                      tuition={currentCourseInfo.tuition}
+                      canEdit={true}
+                      onUpdateCourseInfo={async (totalSessions, tuition) => {
+                        await updateStudentCourseInfo(selectedStudentId, selectedCourseId, totalSessions, tuition);
+                        setCurrentCourseInfo({ totalSessions, tuition });
+                      }}
                     />
 
                     <DiaryForm

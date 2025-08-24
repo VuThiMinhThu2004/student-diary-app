@@ -208,6 +208,72 @@ textarea, input {
   padding-bottom: 8px;
 }
 
+.course-info-section {
+  background: #f0f7ff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #e3f2fd;
+}
+
+.course-info-display {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.edit-course-info {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.edit-course-info .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.edit-course-info label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #856404;
+}
+
+.edit-course-info .form-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.edit-course-info .edit-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+/* Mobile responsive for course info */
+@media (max-width: 768px) {
+  .edit-course-info .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .edit-course-info .edit-actions {
+    justify-content: center;
+  }
+}
+
 .progress-item {
   background: white;
   padding: 10px;
@@ -1571,6 +1637,83 @@ tr:hover {
   color: #2c80b9;
   margin-bottom: 15px;
   text-align: center;
+}
+
+/* Enrollment Form Styles */
+.enrollment-form {
+  background: #e3f2fd;
+  border: 2px solid #2c80b9;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.enrollment-form h5 {
+  color: #2c80b9;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.enrollment-details {
+  background: #f0f7ff;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.enrollment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.enrollment-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.enrollment-info .btn {
+  margin-top: 10px;
+  align-self: flex-start;
+}
+
+.edit-enrollment-form {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: flex-start;
+}
+
+.course-enrollment-card {
+  position: relative;
+}
+
+.course-enrollment-card .enrollment-action {
+  margin-top: 15px;
+}
+
+/* Responsive for enrollment forms */
+@media (max-width: 768px) {
+  .enrollment-form,
+  .edit-enrollment-form {
+    padding: 15px;
+  }
+  
+  .enrollment-details {
+    padding: 10px;
+  }
+  
+  .edit-actions {
+    justify-content: center;
+  }
 }
 
 .no-courses {
