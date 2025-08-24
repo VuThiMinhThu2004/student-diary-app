@@ -1836,6 +1836,85 @@ tr:hover {
   width: 100%;
 }
 
+.weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #e0e0e0;
+}
+
+.week-day {
+  background: white;
+  min-height: 120px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.week-day:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+.week-day.selected {
+  background: #e3f2fd;
+  border: 2px solid #2c80b9;
+}
+
+.week-day.has-schedule {
+  border-left: 4px solid #4caf50;
+}
+
+.week-day .day-header {
+  text-align: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.week-day .day-name {
+  font-size: 1rem;
+  color: #2c80b9;
+  font-weight: 600;
+}
+
+.schedule-preview {
+  margin-top: 8px;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  font-size: 0.75rem;
+}
+
+.schedule-time {
+  font-weight: bold;
+  color: #2c80b9;
+}
+
+.schedule-info {
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+
+.more-schedules {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #999;
+  margin-top: 5px;
+  font-style: italic;
+}
+
 .calendar-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -1926,6 +2005,135 @@ tr:hover {
 .daily-header h3 {
   margin: 0;
   color: #2c80b9;
+}
+
+/* Schedule Card Styles */
+.schedule-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #2c80b9;
+}
+
+.schedule-card:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.schedule-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.schedule-time {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2c80b9;
+  background: #e3f2fd;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.schedule-course {
+  font-weight: 500;
+  color: #666;
+  flex: 1;
+  margin: 0 15px;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-actions .btn-edit {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.schedule-actions .btn-edit:hover {
+  background: #45a049;
+}
+
+.schedule-actions .btn-delete {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.schedule-actions .btn-delete:hover {
+  background: #da190b;
+}
+
+.schedule-students {
+  margin-top: 10px;
+}
+
+.schedule-students strong {
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.students-list-display {
+  background: white;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  font-family: inherit;
+  margin: 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Button Colors */
+.btn-add {
+  background: #4caf50 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.btn-add:hover {
+  background: #45a049 !important;
+}
+
+.form-actions .btn-primary {
+  background: #4caf50 !important;
+  border-color: #4caf50 !important;
+}
+
+.form-actions .btn-primary:hover {
+  background: #45a049 !important;
+  border-color: #45a049 !important;
+}
+
+.form-actions .btn-secondary {
+  background: #f44336 !important;
+  border-color: #f44336 !important;
+  color: white !important;
+}
+
+.form-actions .btn-secondary:hover {
+  background: #da190b !important;
+  border-color: #da190b !important;
 }
 
 .schedule-form {

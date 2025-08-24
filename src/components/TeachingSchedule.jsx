@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const TeachingSchedule = ({ userEmail }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [schedules, setSchedules] = useState([]);
   const [dailySchedules, setDailySchedules] = useState([]);
@@ -15,21 +14,14 @@ const TeachingSchedule = ({ userEmail }) => {
     course: ''
   });
 
-  // Load schedules for current month
-  const loadMonthSchedules = useCallback(async () => {
+  // Load schedules for all days
+  const loadAllSchedules = useCallback(async () => {
     if (!userEmail) return;
     
     try {
-      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      
       const q = query(
         collection(db, 'teachingSchedule'),
-        where('teacherEmail', '==', userEmail),
-        where('date', '>=', startOfMonth),
-        where('date', '<=', endOfMonth),
-        orderBy('date'),
-        orderBy('time')
+        where('teacherEmail', '==', userEmail)
       );
       
       const querySnapshot = await getDocs(q);
@@ -38,53 +30,94 @@ const TeachingSchedule = ({ userEmail }) => {
         scheduleData.push({ id: doc.id, ...doc.data() });
       });
       
+      // Sort in JavaScript instead of Firestore
+      scheduleData.sort((a, b) => {
+        const dateA = a.date.toDate ? a.date.toDate() : new Date(a.date);
+        const dateB = b.date.toDate ? b.date.toDate() : new Date(b.date);
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA.getTime() - dateB.getTime();
+        }
+        return a.time.localeCompare(b.time);
+      });
+      
       setSchedules(scheduleData);
     } catch (error) {
       console.error('Error loading schedules:', error);
     }
-  }, [userEmail, currentDate]);
+  }, [userEmail]);
 
   useEffect(() => {
-    loadMonthSchedules();
-  }, [loadMonthSchedules]);
+    loadAllSchedules();
+  }, [loadAllSchedules]);
 
-  // Load daily schedules when date is selected
+  // Load daily schedules when a date is selected
   const loadDailySchedules = useCallback(async () => {
-    if (!selectedDate || !userEmail) return;
-    
+    if (!userEmail || !selectedDate) {
+      setDailySchedules([]);
+      return;
+    }
+
     try {
-      const startOfDay = new Date(selectedDate);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(selectedDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      
       const q = query(
         collection(db, 'teachingSchedule'),
-        where('teacherEmail', '==', userEmail),
-        where('date', '>=', startOfDay),
-        where('date', '<=', endOfDay),
-        orderBy('time')
+        where('teacherEmail', '==', userEmail)
       );
       
       const querySnapshot = await getDocs(q);
       const dailyData = [];
       querySnapshot.forEach((doc) => {
-        dailyData.push({ id: doc.id, ...doc.data() });
+        const data = { id: doc.id, ...doc.data() };
+        const scheduleDate = data.date.toDate ? data.date.toDate() : new Date(data.date);
+        
+        // Filter by selected day of week in JavaScript
+        if (scheduleDate.getDay() === getDayIndexFromName(selectedDate.dayName)) {
+          dailyData.push(data);
+        }
       });
+      
+      // Sort by time
+      dailyData.sort((a, b) => a.time.localeCompare(b.time));
       
       setDailySchedules(dailyData);
     } catch (error) {
       console.error('Error loading daily schedules:', error);
     }
-  }, [selectedDate, userEmail]);
+  }, [userEmail, selectedDate]);
+
+  const getDayIndexFromName = (dayName) => {
+    const dayMap = {
+      'Thứ 2': 1,
+      'Thứ 3': 2,
+      'Thứ 4': 3,
+      'Thứ 5': 4,
+      'Thứ 6': 5,
+      'Thứ 7': 6,
+      'Chủ nhật': 0
+    };
+    return dayMap[dayName] || 0;
+  };
 
   useEffect(() => {
     loadDailySchedules();
   }, [loadDailySchedules]);
 
-  const handleDateClick = (day) => {
-    const clickedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    setSelectedDate(clickedDate);
+  const handleDateClick = (dayName) => {
+    // Tạo date cụ thể cho thứ được chọn trong tuần hiện tại
+    const today = new Date();
+    const currentDayOfWeek = today.getDay(); // 0 = CN, 1 = T2, ..., 6 = T7
+    const targetDayIndex = getDayIndexFromName(dayName);
+    
+    // Tính số ngày cần thêm/bớt để đến thứ được chọn
+    let daysToAdd = targetDayIndex - currentDayOfWeek;
+    if (daysToAdd < 0) {
+      daysToAdd += 7; // Nếu thứ đã qua trong tuần này, lấy tuần sau
+    }
+    
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + daysToAdd);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    setSelectedDate({ dayName, date: targetDate });
   };
 
   const handleAddSchedule = async () => {
@@ -94,21 +127,19 @@ const TeachingSchedule = ({ userEmail }) => {
     }
 
     try {
-      const scheduleData = {
+      await addDoc(collection(db, 'teachingSchedule'), {
         teacherEmail: userEmail,
-        date: selectedDate,
+        date: selectedDate.date, // Sử dụng ngày của thứ đã chọn
         time: newSchedule.time,
         students: newSchedule.students,
         course: newSchedule.course,
         createdAt: new Date()
-      };
+      });
 
-      await addDoc(collection(db, 'teachingSchedule'), scheduleData);
-      
       setNewSchedule({ time: '', students: '', course: '' });
       setShowAddForm(false);
       loadDailySchedules();
-      loadMonthSchedules();
+      loadAllSchedules();
       alert('Thêm lịch dạy thành công!');
     } catch (error) {
       console.error('Error adding schedule:', error);
@@ -116,24 +147,12 @@ const TeachingSchedule = ({ userEmail }) => {
     }
   };
 
-  const handleEditSchedule = async () => {
-    if (!editingSchedule.time || !editingSchedule.students) {
-      alert('Vui lòng điền đầy đủ thông tin!');
-      return;
-    }
-
+  const handleUpdateSchedule = async (scheduleId, updatedData) => {
     try {
-      const scheduleRef = doc(db, 'teachingSchedule', editingSchedule.id);
-      await updateDoc(scheduleRef, {
-        time: editingSchedule.time,
-        students: editingSchedule.students,
-        course: editingSchedule.course,
-        updatedAt: new Date()
-      });
-
+      await updateDoc(doc(db, 'teachingSchedule', scheduleId), updatedData);
       setEditingSchedule(null);
       loadDailySchedules();
-      loadMonthSchedules();
+      loadAllSchedules();
       alert('Cập nhật lịch dạy thành công!');
     } catch (error) {
       console.error('Error updating schedule:', error);
@@ -142,12 +161,14 @@ const TeachingSchedule = ({ userEmail }) => {
   };
 
   const handleDeleteSchedule = async (scheduleId) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa lịch dạy này?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa lịch dạy này?')) {
+      return;
+    }
 
     try {
       await deleteDoc(doc(db, 'teachingSchedule', scheduleId));
       loadDailySchedules();
-      loadMonthSchedules();
+      loadAllSchedules();
       alert('Xóa lịch dạy thành công!');
     } catch (error) {
       console.error('Error deleting schedule:', error);
@@ -156,35 +177,23 @@ const TeachingSchedule = ({ userEmail }) => {
   };
 
   // Calendar rendering functions
-  const getDaysInMonth = () => {
-    return new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const getWeekDays = () => {
+    return [
+      { dayName: 'Thứ 2', dayIndex: 1 },
+      { dayName: 'Thứ 3', dayIndex: 2 },
+      { dayName: 'Thứ 4', dayIndex: 3 },
+      { dayName: 'Thứ 5', dayIndex: 4 },
+      { dayName: 'Thứ 6', dayIndex: 5 },
+      { dayName: 'Thứ 7', dayIndex: 6 },
+      { dayName: 'Chủ nhật', dayIndex: 0 }
+    ];
   };
 
-  const getFirstDayOfMonth = () => {
-    return new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
-  };
-
-  const getSchedulesForDay = (day) => {
-    const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+  const getSchedulesForDayIndex = (dayIndex) => {
     return schedules.filter(schedule => {
       const scheduleDate = schedule.date.toDate ? schedule.date.toDate() : new Date(schedule.date);
-      return scheduleDate.toDateString() === dayDate.toDateString();
-    });
-  };
-
-  const navigateMonth = (direction) => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + direction);
-    setCurrentDate(newDate);
-    setSelectedDate(null);
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      const scheduleDayIndex = scheduleDate.getDay();
+      return scheduleDayIndex === dayIndex;
     });
   };
 
@@ -201,60 +210,43 @@ const TeachingSchedule = ({ userEmail }) => {
         <p className="english-subtitle">Teaching Schedule</p>
       </div>
 
-      {/* Calendar Navigation */}
+      {/* Weekly Schedule Header */}
       <div className="calendar-navigation">
-        <button className="btn btn-secondary" onClick={() => navigateMonth(-1)}>
-          ← Tháng trước
-        </button>
-        <h3>
-          {currentDate.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}
-        </h3>
-        <button className="btn btn-secondary" onClick={() => navigateMonth(1)}>
-          Tháng sau →
-        </button>
+        <h3>Lịch tuần</h3>
       </div>
 
-      {/* Calendar Grid */}
+      {/* Weekly Calendar Grid */}
       <div className="calendar-container">
-        <div className="calendar-grid">
-          <div className="calendar-header">
-            <div className="day-header">CN</div>
-            <div className="day-header">T2</div>
-            <div className="day-header">T3</div>
-            <div className="day-header">T4</div>
-            <div className="day-header">T5</div>
-            <div className="day-header">T6</div>
-            <div className="day-header">T7</div>
-          </div>
-          
-          <div className="calendar-days">
-            {/* Empty cells for days before month starts */}
-            {Array.from({ length: getFirstDayOfMonth() }, (_, index) => (
-              <div key={`empty-${index}`} className="calendar-day empty"></div>
-            ))}
+        <div className="weekly-grid">
+          {getWeekDays().map((dayInfo, index) => {
+            const daySchedules = getSchedulesForDayIndex(dayInfo.dayIndex);
+            const isSelected = selectedDate && selectedDate.dayName === dayInfo.dayName;
             
-            {/* Days of the month */}
-            {Array.from({ length: getDaysInMonth() }, (_, index) => {
-              const day = index + 1;
-              const daySchedules = getSchedulesForDay(day);
-              const isSelected = selectedDate && selectedDate.getDate() === day;
-              
-              return (
-                <div
-                  key={day}
-                  className={`calendar-day ${isSelected ? 'selected' : ''} ${daySchedules.length > 0 ? 'has-schedule' : ''}`}
-                  onClick={() => handleDateClick(day)}
-                >
-                  <span className="day-number">{day}</span>
-                  {daySchedules.length > 0 && (
-                    <div className="schedule-indicator">
-                      {daySchedules.length} lịch
-                    </div>
-                  )}
+            return (
+              <div
+                key={index}
+                className={`week-day ${isSelected ? 'selected' : ''} ${daySchedules.length > 0 ? 'has-schedule' : ''}`}
+                onClick={() => handleDateClick(dayInfo.dayName)}
+              >
+                <div className="day-header">
+                  <div className="day-name">{dayInfo.dayName}</div>
                 </div>
-              );
-            })}
-          </div>
+                {daySchedules.length > 0 && (
+                  <div className="schedule-preview">
+                    {daySchedules.slice(0, 2).map((schedule, idx) => (
+                      <div key={idx} className="schedule-item">
+                        <span className="schedule-time">{schedule.time}</span>
+                        <span className="schedule-info">{schedule.students.split('\n')[0]}</span>
+                      </div>
+                    ))}
+                    {daySchedules.length > 2 && (
+                      <div className="more-schedules">+{daySchedules.length - 2} lịch khác</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -262,7 +254,7 @@ const TeachingSchedule = ({ userEmail }) => {
       {selectedDate && (
         <div className="daily-schedule">
           <div className="daily-header">
-            <h3>Lịch dạy ngày {formatDate(selectedDate)}</h3>
+            <h3>Lịch dạy {selectedDate.dayName}</h3>
             <button 
               className="btn btn-add"
               onClick={() => setShowAddForm(true)}
@@ -280,168 +272,126 @@ const TeachingSchedule = ({ userEmail }) => {
                   <label>Giờ dạy:</label>
                   <input
                     type="time"
-                    className="form-input"
                     value={newSchedule.time}
-                    onChange={(e) => setNewSchedule({...newSchedule, time: e.target.value})}
+                    onChange={(e) => setNewSchedule(prev => ({ ...prev, time: e.target.value }))}
                   />
                 </div>
                 <div>
-                  <label>Lớp/Khóa học:</label>
+                  <label>Khóa học:</label>
                   <input
                     type="text"
-                    className="form-input"
+                    placeholder="Tên khóa học"
                     value={newSchedule.course}
-                    onChange={(e) => setNewSchedule({...newSchedule, course: e.target.value})}
-                    placeholder="Ví dụ: Piano cơ bản"
+                    onChange={(e) => setNewSchedule(prev => ({ ...prev, course: e.target.value }))}
                   />
                 </div>
               </div>
               <div>
-                <label>Danh sách học sinh (mỗi học sinh một dòng):</label>
+                <label>Học sinh:</label>
                 <textarea
-                  className="form-input students-textarea"
+                  placeholder="Danh sách học sinh (mỗi học sinh một dòng)"
                   value={newSchedule.students}
-                  onChange={(e) => setNewSchedule({...newSchedule, students: e.target.value})}
-                  placeholder="Nhập tên học sinh, mỗi học sinh một dòng&#10;Ví dụ:&#10;Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"
+                  onChange={(e) => setNewSchedule(prev => ({ ...prev, students: e.target.value }))}
                   rows="4"
                 />
               </div>
               <div className="form-actions">
-                <button className="btn btn-add" onClick={handleAddSchedule}>
+                <button className="btn btn-primary" onClick={handleAddSchedule}>
                   Thêm lịch
                 </button>
-                <button 
-                  className="btn btn-cancel" 
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setNewSchedule({ time: '', students: '', course: '' });
-                  }}
-                >
+                <button className="btn btn-secondary" onClick={() => setShowAddForm(false)}>
                   Hủy
                 </button>
               </div>
             </div>
           )}
 
-          {/* Daily Schedule Table */}
-          {dailySchedules.length > 0 ? (
-            <div className="schedule-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Thứ/Ngày</th>
-                    <th>Giờ dạy</th>
-                    <th>Lớp/Khóa học</th>
-                    <th>Học sinh</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dailySchedules.map((schedule) => (
-                    <tr key={schedule.id}>
-                      <td>
-                        {selectedDate.toLocaleDateString('vi-VN', { 
-                          weekday: 'short',
-                          day: '2-digit',
-                          month: '2-digit'
-                        })}
-                      </td>
-                      <td>
-                        {editingSchedule?.id === schedule.id ? (
+          {/* Schedule List */}
+          <div className="schedule-list">
+            {dailySchedules.length === 0 ? (
+              <p>Chưa có lịch dạy nào cho {selectedDate.dayName}.</p>
+            ) : (
+              dailySchedules.map(schedule => (
+                <div key={schedule.id} className="schedule-card">
+                  {editingSchedule === schedule.id ? (
+                    <div className="edit-schedule-form">
+                      <div className="form-row">
+                        <div>
+                          <label>Giờ dạy:</label>
                           <input
                             type="time"
-                            className="edit-input"
-                            value={editingSchedule.time}
-                            onChange={(e) => setEditingSchedule({...editingSchedule, time: e.target.value})}
+                            defaultValue={schedule.time}
+                            onChange={(e) => setNewSchedule(prev => ({ ...prev, time: e.target.value }))}
                           />
-                        ) : (
-                          schedule.time
-                        )}
-                      </td>
-                      <td>
-                        {editingSchedule?.id === schedule.id ? (
+                        </div>
+                        <div>
+                          <label>Khóa học:</label>
                           <input
                             type="text"
-                            className="edit-input"
-                            value={editingSchedule.course}
-                            onChange={(e) => setEditingSchedule({...editingSchedule, course: e.target.value})}
+                            defaultValue={schedule.course}
+                            onChange={(e) => setNewSchedule(prev => ({ ...prev, course: e.target.value }))}
                           />
-                        ) : (
-                          schedule.course
-                        )}
-                      </td>
-                      <td>
-                        {editingSchedule?.id === schedule.id ? (
-                          <textarea
-                            className="edit-textarea"
-                            value={editingSchedule.students}
-                            onChange={(e) => setEditingSchedule({...editingSchedule, students: e.target.value})}
-                            rows="3"
-                          />
-                        ) : (
-                          <div className="students-list">
-                            {formatStudentsList(schedule.students)}
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          {editingSchedule?.id === schedule.id ? (
-                            <div className="edit-buttons">
-                              <button 
-                                className="btn-save"
-                                onClick={handleEditSchedule}
-                                title="Lưu"
-                              >
-                                💾
-                              </button>
-                              <button 
-                                className="btn-cancel"
-                                onClick={() => setEditingSchedule(null)}
-                                title="Hủy"
-                              >
-                                ❌
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <button 
-                                className="btn-edit"
-                                onClick={() => setEditingSchedule({...schedule})}
-                                title="Sửa"
-                              >
-                                ✏️
-                              </button>
-                              <button 
-                                className="btn-delete"
-                                onClick={() => handleDeleteSchedule(schedule.id)}
-                                title="Xóa"
-                              >
-                                🗑️
-                              </button>
-                            </>
-                          )}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="no-schedule">
-              <p>Không có lịch dạy nào trong ngày này.</p>
-              <p>Nhấn "Thêm lịch dạy" để tạo lịch mới.</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {!selectedDate && (
-        <div className="schedule-instruction">
-          <p>📍 Chọn một ngày trên lịch để xem và quản lý lịch dạy</p>
-          <p>• Những ngày có lịch dạy sẽ hiển thị số lượng lịch</p>
-          <p>• Nhấn vào ngày để xem chi tiết và thêm/sửa lịch</p>
+                      </div>
+                      <div>
+                        <label>Học sinh:</label>
+                        <textarea
+                          defaultValue={schedule.students}
+                          onChange={(e) => setNewSchedule(prev => ({ ...prev, students: e.target.value }))}
+                          rows="4"
+                        />
+                      </div>
+                      <div className="form-actions">
+                        <button 
+                          className="btn btn-primary"
+                          onClick={() => handleUpdateSchedule(schedule.id, {
+                            time: newSchedule.time || schedule.time,
+                            course: newSchedule.course || schedule.course,
+                            students: newSchedule.students || schedule.students
+                          })}
+                        >
+                          Cập nhật
+                        </button>
+                        <button 
+                          className="btn btn-secondary"
+                          onClick={() => setEditingSchedule(null)}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="schedule-header-card">
+                        <div className="schedule-time">{schedule.time}</div>
+                        <div className="schedule-course">{schedule.course}</div>
+                        <div className="schedule-actions">
+                          <button 
+                            className="btn btn-edit"
+                            onClick={() => setEditingSchedule(schedule.id)}
+                          >
+                            Sửa
+                          </button>
+                          <button 
+                            className="btn btn-delete"
+                            onClick={() => handleDeleteSchedule(schedule.id)}
+                          >
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
+                      <div className="schedule-students">
+                        <strong>Học sinh:</strong>
+                        <pre className="students-list-display">
+                          {formatStudentsList(schedule.students)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
