@@ -8,6 +8,7 @@ function StudentCourseAssignment({ user }) {
   const [studentCourses, setStudentCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // State cho form đăng ký
   const [showEnrollForm, setShowEnrollForm] = useState(false);
@@ -195,6 +196,12 @@ function StudentCourseAssignment({ user }) {
     );
   }
 
+  // Lọc học sinh theo tìm kiếm
+  const filteredStudents = students.filter(student =>
+    (student.fullName && student.fullName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (student.email && student.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="course-assignment">
       <h3>📚 Đăng ký học sinh vào khóa học</h3>
@@ -203,11 +210,22 @@ function StudentCourseAssignment({ user }) {
         {/* Danh sách học sinh */}
         <div className="students-section">
           <h4>👥 Danh sách học sinh</h4>
-          {students.length === 0 ? (
-            <p>Chưa có học sinh nào trong hệ thống.</p>
+          
+          {/* Thanh tìm kiếm */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="🔍 Tìm kiếm học sinh theo tên hoặc email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {filteredStudents.length === 0 ? (
+            <p>{searchTerm ? 'Không tìm thấy học sinh nào phù hợp.' : 'Chưa có học sinh nào trong hệ thống.'}</p>
           ) : (
             <div className="students-list">
-              {students.map(student => (
+              {filteredStudents.map(student => (
                 <div 
                   key={student.id} 
                   className={`student-item ${selectedStudent?.id === student.id ? 'selected' : ''}`}

@@ -1471,6 +1471,29 @@ tr:hover {
   margin-bottom: 15px;
 }
 
+.search-bar {
+  margin-bottom: 15px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.search-bar input:focus {
+  border-color: #2c80b9;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(44, 128, 185, 0.1);
+}
+
+.search-bar input::placeholder {
+  color: #999;
+}
+
 .students-list {
   max-height: 400px;
   overflow-y: auto;
