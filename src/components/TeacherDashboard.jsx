@@ -77,7 +77,7 @@ function TeacherDashboard({ user, onLogout }) {
     loadStudents();
   }, [loadStudents]);
 
-  // Load tất cả thông tin khóa học của học sinh (cho dashboard stats)
+  // Load tất cả thông tin khóa học của học sinh (cho dashboard stats) (Load all student course information for dashboard stats)
   const loadAllStudentCourses = useCallback(async () => {
     try {
       const studentCoursesRef = collection(db, 'studentCourses');

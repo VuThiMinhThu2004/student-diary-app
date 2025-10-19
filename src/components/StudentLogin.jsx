@@ -31,6 +31,7 @@ function StudentLogin({ onLoginSuccess }) {
       // Chỉ cho phép role student đăng nhập
       if (userData.role !== 'student') {
         // Đăng xuất ngay lập tức nếu không phải student
+        // Immediately log out if not a student
         await auth.signOut();
         throw new Error('Tài khoản này không có quyền truy cập hệ thống học sinh');
       }
@@ -49,29 +50,29 @@ function StudentLogin({ onLoginSuccess }) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>📚 Đăng nhập Học sinh</h2>
-        <p className="login-subtitle">Xem nhật ký học tập của bạn</p>
+        <h2>📚 Đăng nhập Học sinh (Student Login)</h2>
+        <p className="login-subtitle">Xem nhật ký học tập của bạn (View your study diary)</p>
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label>Email học sinh:</label>
+            <label>Email học sinh (Student Email):</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="student@example.com"
+              placeholder="student@example.com (Student Email)"
               required
               disabled={isLoading}
             />
           </div>
           
           <div className="form-group">
-            <label>Mật khẩu:</label>
+            <label>Mật khẩu (Password):</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhập mật khẩu (Enter Password)"
               required
               disabled={isLoading}
             />
@@ -88,13 +89,13 @@ function StudentLogin({ onLoginSuccess }) {
             className="btn btn-login"
             disabled={isLoading}
           >
-            {isLoading ? '⏳ Đang đăng nhập...' : '🔑 Đăng nhập'}
+            {isLoading ? '⏳ Đang đăng nhập (Logging in)...' : '🔑 Đăng nhập (Login)'}
           </button>
         </form>
 
         <div className="login-footer">
-          <p>📖 Học sinh chỉ có quyền xem nhật ký của mình</p>
-          <p>👨‍🏫 Tài khoản được tạo bởi giáo viên</p>
+          <p>📖 Học sinh chỉ có quyền xem nhật ký của mình (Students can only view their own diaries)</p>
+          <p>👨‍🏫 Tài khoản được tạo bởi giáo viên (Account created by teacher)</p>
         </div>
       </div>
     </div>

@@ -112,7 +112,7 @@ function CourseList({ user }) {
   if (loading) {
     return (
       <div className="course-list">
-        <div className="loading">⏳ Đang tải danh sách khóa học...</div>
+        <div className="loading">⏳ Đang tải danh sách khóa học (Loading course list)...</div>
       </div>
     );
   }
@@ -130,9 +130,9 @@ function CourseList({ user }) {
             className="btn btn-secondary"
             onClick={backToCourseList}
           >
-            ← Quay lại danh sách khóa học
+            ← Quay lại danh sách khóa học (Back to course list)
           </button>
-          <h2>📖 Nhật ký khóa học: {selectedCourse.name}</h2>
+          <h2>📖 Nhật ký khóa học (Course Diary): {selectedCourse.name}</h2>
           {selectedCourse.description && (
             <p className="course-description">{selectedCourse.description}</p>
           )}
@@ -167,16 +167,16 @@ function CourseList({ user }) {
   // Hiển thị danh sách khóa học
   return (
     <div className="course-list">
-      <h2>📚 Khóa học</h2>
+      <h2>📚 Khóa học (Courses)</h2>
       
       {enrolledCourses.length === 0 && allCourses.length === 0 ? (
         <div className="no-courses">
-          <p>📝 Chưa có khóa học nào trong hệ thống.</p>
+          <p>📝 Chưa có khóa học nào trong hệ thống (No courses in the system).</p>
           <p>Liên hệ với giáo viên để tạo khóa học.</p>
         </div>
       ) : enrolledCourses.length === 0 ? (
         <div className="no-enrolled-courses">
-          <p>📝 Bạn chưa đăng ký khóa học nào.</p>
+          <p>📝 Bạn chưa đăng ký khóa học nào (You have not enrolled in any courses).</p>
           <p>Liên hệ với giáo viên để được đăng ký vào các khóa học sau:</p>
           
           <div className="courses-grid">
@@ -187,7 +187,7 @@ function CourseList({ user }) {
                   <p className="course-description">{course.description}</p>
                 )}
                 <div className="course-meta">
-                  <small>Tạo: {new Date(course.createdAt.toDate()).toLocaleDateString('vi-VN')}</small>
+                  <small>Tạo (Created): {new Date(course.createdAt.toDate()).toLocaleDateString('vi-VN')}</small>
                 </div>
                 <div className="course-action">
                   <span className="not-enrolled-text">⚠️ Chưa đăng ký</span>
@@ -198,7 +198,7 @@ function CourseList({ user }) {
         </div>
       ) : (
         <div className="enrolled-courses">
-          <p>✅ Các khóa học bạn đã đăng ký:</p>
+          <p>✅ Các khóa học bạn đã đăng ký (Courses you have enrolled in):</p>
           <div className="courses-grid">
             {enrolledCourses.map(course => (
               <div 
@@ -211,10 +211,10 @@ function CourseList({ user }) {
                   <p className="course-description">{course.description}</p>
                 )}
                 <div className="course-meta">
-                  <small>Tạo: {new Date(course.createdAt.toDate()).toLocaleDateString('vi-VN')}</small>
+                  <small>Tạo (Created): {new Date(course.createdAt.toDate()).toLocaleDateString('vi-VN')}</small>
                 </div>
                 <div className="course-action">
-                  <span className="view-diary-text">👆 Click để xem nhật ký</span>
+                  <span className="view-diary-text">👆 Click để xem nhật ký (Click to view diary)</span>
                 </div>
               </div>
             ))}

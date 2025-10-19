@@ -49,29 +49,29 @@ function TeacherLogin({ onLoginSuccess }) {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>🎓 Đăng nhập Giáo viên</h2>
-        <p className="login-subtitle">Hệ thống quản lý nhật ký học sinh</p>
+        <h2>🎓 Đăng nhập Giáo viên (Teacher Login)</h2>
+        <p className="login-subtitle">Hệ thống quản lý nhật ký học sinh (Student diary management system)</p>
         
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
-            <label>Email giáo viên:</label>
+            <label>Email giáo viên (Teacher Email):</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="teacher@example.com"
+              placeholder="teacher@example.com (Teacher Email)"
               required
               disabled={isLoading}
             />
           </div>
           
           <div className="form-group">
-            <label>Mật khẩu:</label>
+            <label>Mật khẩu (Password):</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhập mật khẩu (Enter Password)"
               required
               disabled={isLoading}
             />

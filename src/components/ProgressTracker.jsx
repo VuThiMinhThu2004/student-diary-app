@@ -31,7 +31,7 @@ function ProgressTracker({
 
   return (
     <div className="progress-section">
-      <h2>📈 Tiến độ học tập</h2>
+      <h2>📈 Tiến độ học tập (Learning Progress)</h2>
       
       {/* Thông tin số buổi học và học phí */}
       <div className="course-info-section">
@@ -39,7 +39,7 @@ function ProgressTracker({
           <div className="edit-course-info">
             <div className="form-row">
               <div>
-                <label>Số buổi học:</label>
+                <label>Số buổi học (Total Sessions):</label>
                 <input
                   type="number"
                   className="form-input"
@@ -49,7 +49,7 @@ function ProgressTracker({
                 />
               </div>
               <div>
-                <label>Học phí (VNĐ):</label>
+                <label>Học phí (Tuition Fee) (VNĐ):</label>
                 <input
                   type="number"
                   className="form-input"
@@ -60,24 +60,24 @@ function ProgressTracker({
               </div>
             </div>
             <div className="edit-actions">
-              <button className="btn-save" onClick={handleSave}>💾 Lưu</button>
-              <button className="btn-cancel" onClick={handleCancel}>❌ Hủy</button>
+              <button className="btn-save" onClick={handleSave}>💾 Lưu (Save)</button>
+              <button className="btn-cancel" onClick={handleCancel}>❌ Hủy (Cancel)</button>
             </div>
           </div>
         ) : (
           <div className="course-info-display">
             <div className="info-item">
-              <strong>Tổng số buổi:</strong> {totalSessions} buổi
+              <strong>Tổng số buổi (Total Sessions):</strong> {totalSessions} buổi
             </div>
             <div className="info-item">
-              <strong>Học phí:</strong> {tuition.toLocaleString()} VNĐ
+              <strong>Học phí (Tuition Fee):</strong> {tuition.toLocaleString()} VNĐ
             </div>
             {canEdit && (
               <button 
                 className="btn btn-edit btn-sm"
                 onClick={() => setIsEditing(true)}
               >
-                ✏️ Sửa thông tin
+                ✏️ Sửa thông tin (Edit Information)
               </button>
             )}
           </div>
@@ -86,19 +86,19 @@ function ProgressTracker({
       
       {/* Tiến độ học tập */}
       <div className="progress-item">
-        Đã học <strong>{paidCount}/{totalSessions}</strong> buổi —
-        Tiến độ: <strong>{progressPercent}%</strong>
+        Đã học (Completed) <strong>{paidCount}/{totalSessions}</strong> buổi —
+        Tiến độ (Progress): <strong>{progressPercent}%</strong>
       </div>
       <div className="progress-item">
-        Còn lại: <strong>{remaining}</strong> buổi
+        Còn lại (Remaining): <strong>{remaining}</strong> buổi
       </div>
       {freeCount > 0 && (
         <div className="progress-item free-sessions">
-          Buổi hướng dẫn không tính phí: <strong>{freeCount}</strong> buổi
+          Buổi hướng dẫn không tính phí (Free Sessions): <strong>{freeCount}</strong> buổi
         </div>
       )}
       <div className="progress-item total-sessions">
-        Tổng số buổi đã tham gia: <strong>{attendedCount}</strong> buổi
+        Tổng số buổi đã tham gia (Total Attended Sessions): <strong>{attendedCount}</strong> buổi
       </div>
     </div>
   );

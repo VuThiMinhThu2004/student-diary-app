@@ -22,21 +22,21 @@ function DiaryHistory({
 }) {
   return (
     <div className="history-section">
-      <h2>📑 Lịch sử nhật ký</h2>
+      <h2>📑 Lịch sử nhật ký (Diary History)</h2>
       {logs.length === 0 ? (
-        <p>Chưa có nhật ký nào.</p>
+        <p>Chưa có nhật ký nào (No diary entries).</p>
       ) : (
         <table>
           <thead>
             <tr>
-              <th>STT</th>
-              <th>Ngày</th>
-              <th>Nội dung</th>
-              <th>Ưu điểm</th>
-              <th>Lỗi cần sửa</th>
-              <th>Bài tập về nhà</th>
-              <th>Tính phí</th>
-              {userRole === "teacher" && <th>Thao tác</th>}
+              <th>STT (No.)</th>
+              <th>Ngày (Date)</th>
+              <th>Nội dung (Content)</th>
+              <th>Ưu điểm (Advantages)</th>
+              <th>Lỗi cần sửa (Errors to Fix)</th>
+              <th>Bài tập về nhà (Homework)</th>
+              <th>Tính phí (Charge)</th>
+              {userRole === "teacher" && <th>Thao tác (Actions)</th>}
             </tr>
           </thead>
           <tbody>

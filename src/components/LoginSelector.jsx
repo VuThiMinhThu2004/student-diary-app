@@ -12,7 +12,7 @@ function LoginSelector({ onLoginSuccess }) {
           className="back-button"
           onClick={() => setLoginType(null)}
         >
-          ← Quay lại
+          ← Quay lại (Back)
         </button>
         <TeacherLogin onLoginSuccess={onLoginSuccess} />
       </div>
@@ -26,7 +26,7 @@ function LoginSelector({ onLoginSuccess }) {
           className="back-button"
           onClick={() => setLoginType(null)}
         >
-          ← Quay lại
+          ← Quay lại (Back)
         </button>
         <StudentLogin onLoginSuccess={onLoginSuccess} />
       </div>
@@ -36,9 +36,9 @@ function LoginSelector({ onLoginSuccess }) {
   return (
     <div className="login-selector">
       <div className="selector-container">
-        <h1>🎹 Nhật ký học tập</h1>
+        <h1>🎹 Nhật ký học tập (Study Diary)</h1>
         <p className="english-subtitle">Study Diary</p>
-        <p className="selector-subtitle">Vui lòng chọn loại tài khoản để đăng nhập</p>
+        <p className="selector-subtitle">Vui lòng chọn loại tài khoản để đăng nhập (Please select an account type to log in)</p>
         
         <div className="login-options">
           <div 
@@ -46,15 +46,15 @@ function LoginSelector({ onLoginSuccess }) {
             onClick={() => setLoginType('teacher')}
           >
             <div className="option-icon">👨‍🏫</div>
-            <h3>Giáo viên</h3>
-            <p>Quản lý học sinh và nhật ký học tập</p>
+            <h3>Giáo viên (Teacher)</h3>
+            <p>Quản lý học sinh và nhật ký học tập (Manage students and study diaries)</p>
             {/* <ul>
               <li>✅ Tạo tài khoản học sinh</li>
               <li>✅ Quản lý nhật ký học tập</li>
               <li>✅ Theo dõi tiến độ học</li>
               <li>✅ Quản lý thanh toán</li>
             </ul> */}
-            <button className="btn btn-teacher">Đăng nhập Giáo viên</button>
+            <button className="btn btn-teacher">Đăng nhập Giáo viên (Teacher Login)</button>
           </div>
 
           <div 
@@ -62,20 +62,20 @@ function LoginSelector({ onLoginSuccess }) {
             onClick={() => setLoginType('student')}
           >
             <div className="option-icon">🎓</div>
-            <h3>Học sinh</h3>
-            <p>Xem nhật ký và tiến độ học tập</p>
+            <h3>Học sinh (Student)</h3>
+            <p>Xem nhật ký và tiến độ học tập (View diaries and progress)</p>
             {/* <ul>
               <li>📖 Xem nhật ký của bản thân</li>
               <li>📊 Theo dõi tiến độ học</li>
               <li>💰 Xem tình trạng thanh toán</li>
               <li>📝 Xem bài tập và ghi chú</li>
             </ul> */}
-            <button className="btn btn-student">Đăng nhập Học sinh</button>
+            <button className="btn btn-student">Đăng nhập Học sinh (Student Login)</button>
           </div>
         </div>
 
         <div className="security-note">
-          <p>🔒 <strong>Bảo mật:</strong> Mỗi loại tài khoản chỉ có thể truy cập chức năng phù hợp với vai trò</p>
+          <p>🔒 <strong>Bảo mật (Security):</strong> Mỗi loại tài khoản chỉ có thể truy cập chức năng phù hợp với vai trò (Each account type can only access functions appropriate to its role)</p>
         </div>
       </div>
     </div>

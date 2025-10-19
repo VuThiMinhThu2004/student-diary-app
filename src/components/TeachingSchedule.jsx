@@ -206,13 +206,13 @@ const TeachingSchedule = ({ userEmail }) => {
   return (
     <div className="teaching-schedule">
       <div className="schedule-header">
-        <h2>📅 Lịch Dạy</h2>
+        <h2>📅 Lịch Dạy (Teaching Schedule)</h2>
         <p className="english-subtitle">Teaching Schedule</p>
       </div>
 
       {/* Weekly Schedule Header */}
       <div className="calendar-navigation">
-        <h3>Lịch tuần</h3>
+        <h3>Lịch tuần (Weekly Schedule)</h3>
       </div>
 
       {/* Weekly Calendar Grid */}
@@ -269,7 +269,7 @@ const TeachingSchedule = ({ userEmail }) => {
               <h4>Thêm lịch dạy mới</h4>
               <div className="form-row">
                 <div>
-                  <label>Giờ dạy:</label>
+                  <label>Giờ dạy (Teaching Time):</label>
                   <input
                     type="time"
                     value={newSchedule.time}
@@ -277,19 +277,19 @@ const TeachingSchedule = ({ userEmail }) => {
                   />
                 </div>
                 <div>
-                  <label>Khóa học:</label>
+                  <label>Khóa học (Course):</label>
                   <input
                     type="text"
-                    placeholder="Tên khóa học"
+                    placeholder="Tạo: 23/7/2025 (Created: 23/7/2025)"
                     value={newSchedule.course}
                     onChange={(e) => setNewSchedule(prev => ({ ...prev, course: e.target.value }))}
                   />
                 </div>
               </div>
               <div>
-                <label>Học sinh:</label>
+                <label>Học sinh (Students):</label>
                 <textarea
-                  placeholder="Danh sách học sinh (mỗi học sinh một dòng)"
+                  placeholder="Danh sách học sinh (mỗi học sinh một dòng) (Student list, one per line)"
                   value={newSchedule.students}
                   onChange={(e) => setNewSchedule(prev => ({ ...prev, students: e.target.value }))}
                   rows="4"

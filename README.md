@@ -156,8 +156,9 @@ Sau khi đăng nhập với tài khoản teacher, bạn có thể:
 ## Deploy
 
 ```bash
-npm ci && npm run build
-firebase deploy
+npm ci
+npm run build
+firebase deploy --only hosting
 ```
 
 Để test local:
